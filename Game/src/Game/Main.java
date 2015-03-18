@@ -8,8 +8,7 @@ package Game;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.*;
 import static org.lwjgl.input.Keyboard.*;
-import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.DisplayMode;
+import org.lwjgl.opengl.*;
 
 /**
 import java.util.HashSet;
@@ -32,15 +31,22 @@ public class Main {
      * @param args the command line arguments
      */
     private static Menu menu;
-    
+    private static float time;
+
+    public static float getTime() {
+        return time;
+    }
+
     public static void main(String[] args) {
         init();
         menu();
+        gameLoop();
+        
     }
     
     private static void menu(){
         menu = new Menu("otsikko");
-        while(true){
+        /*while(true){
             if(Keyboard.isKeyDown(KEY_UP)){
                 menu.moveUP();
             }
@@ -57,19 +63,21 @@ public class Main {
                 }
             }
             
-        }
+        }*/
     }
     
     private static void init(){
-        Input(); //lataa ohjaimet
         
         try {
-            Display.setDisplayMode(new DisplayMode(500,400));
+            Display.setDisplayMode(new DisplayMode(800,600));
             Display.setTitle("Hieno!");
             Display.create();
+            Graphics.init(800,600); //ikkunan koko oltava sama
+
         } catch (LWJGLException ex) {
             System.out.println("Test");
         }
+        Input(); //lataa ohjaimet
     }
     
     private static void Input(){
@@ -95,8 +103,13 @@ public class Main {
             if(Keyboard.isKeyDown(KEY_UP)){
                 Display.setTitle("Ylös");
             } else Display.setTitle("testi");
+            Graphics.render();
+            
+            
             
             Display.update();
+            Display.sync(60);  //maksimissaan 60 frames per second
+            time += 1.0;
         }
     }
     

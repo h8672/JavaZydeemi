@@ -6,6 +6,7 @@
 package Game;
 
 import java.util.ArrayList;
+import org.lwjgl.util.vector.Vector2f;
 
 /**
  * Lataa menun, sirtää valintaa, tulostaa valinnan korostettuna ja
@@ -15,7 +16,7 @@ import java.util.ArrayList;
  * 
  * @author Juha-Matti
  */
-public class Menu extends Valikko {
+public class Menu extends Valikko implements Renderable {
     private int x, max;
     private ArrayList valinnat;
     
@@ -23,6 +24,7 @@ public class Menu extends Valikko {
         x = 0;
         valinnat = new ArrayList();
         valinnat.add(otsikko);
+        Graphics.registerRenderable(this);
     }
     
     public void addChoice(String valinta){
@@ -48,5 +50,31 @@ public class Menu extends Valikko {
     
     public ArrayList chosenlist(){
         return valinnat;
+    }
+    
+    @Override
+    public boolean isVisible()
+    {
+        return true;
+    }
+    
+    @Override
+    public int getDepth()
+    {
+        return 100; // Menu on kaikista päällimmäisenä
+    }
+    
+    @Override
+    public void render()
+    {
+        
+        Graphics.getFont().renderText("Menutekstia!!!!!", new Vector2f(120,90));
+        
+        float[] color = {1.0f,0.9f,1.0f};
+        
+        Graphics.getFont().renderTextExt("Lisaa menutekstia!!!!!", new Vector2f(((float)Math.sin(Main.getTime()/60)*100+200),190),2.0f,color);
+        
+        if (Main.getTime() % 90 > 45)
+        Graphics.getFont().renderTextCool("ZIP ZOP ZIPPITY ZOOB!!!!!", new Vector2f(77,390),3.0f);
     }
 }

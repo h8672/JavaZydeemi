@@ -1,0 +1,273 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Game;
+
+import java.awt.Color;
+import java.io.File;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.PathMatcher;
+import java.nio.file.Paths;
+import java.util.Optional;
+import java.util.TreeMap;
+import java.util.stream.Stream;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.vector.Vector2f;
+
+/**
+ *
+ * @author MacodiusMaximus
+ */
+
+public class TextRendererFont
+{
+    private static TreeMap<String, Character> filenameToGlyphMap;
+
+    /** alustaa fontti asetukset
+     * määrittelee eri merkeille oikeat tiedostonimet
+     */
+    public static void init()
+    {
+        filenameToGlyphMap = new TreeMap<>();
+        filenameToGlyphMap.put("question", '?');
+        filenameToGlyphMap.put("comma", ',');
+        filenameToGlyphMap.put("colon", ':');
+        filenameToGlyphMap.put("apostrophe", '\'');
+        filenameToGlyphMap.put("dash", '-');
+        filenameToGlyphMap.put("period", '.');
+        filenameToGlyphMap.put("exclamation", '!');
+        filenameToGlyphMap.put("par1", '(');
+        filenameToGlyphMap.put("quote", '"');
+        filenameToGlyphMap.put("semicolon", ';');
+        filenameToGlyphMap.put("par2", ')');
+    }
+    
+    
+    private TreeMap<Character,TextureData> glyphMap;
+    TextRendererFont()
+    {
+        glyphMap = new TreeMap<>();
+    }
+    
+    /** Lataa fontin kansiosta
+     *
+     * @param folder kansion nimi josta fontti ladataan
+     */
+    public void load(String folder)
+    {
+        
+        try
+        {
+            
+            Stream<Path> stream =Files.walk(Paths.get(folder));
+
+            stream.forEach( file -> {
+
+                if (Files.isRegularFile(file))
+                {
+
+                    String filename = file.getFileName().toString();
+                    if (filename.contains(".png"))
+                    {
+                        filename = filename.split("\\.")[0];
+                        char glyph = 0;
+                        if (filename.length() == 1)
+                        {
+                            glyph = filename.charAt(0);
+                        }
+                        else
+                        {
+                            if (filenameToGlyphMap.containsKey(filename))
+                                glyph = filenameToGlyphMap.get(filename);
+                            else
+                                return;
+                        }
+
+                        TextureData t = Graphics.loadTexture(file.toString());
+                        if (t.loaded)
+                        {
+                            glyphMap.put(glyph, t);
+                        }
+                    }
+                }
+                
+            });
+        }
+        catch (Exception e)
+        {
+            System.out.println("Failed to load font '"+folder+"' :" + e);
+        }
+        
+        System.out.println("Loaded "+glyphMap.size()+" glyphs.");
+        
+    }
+    
+    abstract class RenderTextCharacterHandler
+    {
+        abstract float getOffX(int CharNum);
+        abstract float getOffY(int CharNum);
+        abstract float[] getColor(int CharNum);
+    }
+    
+    private void renderTextFunc(String str, Vector2f pos, float size, RenderTextCharacterHandler func)
+    {
+        float spacing = 1;
+        float whiteSpace = 7;
+        float curX = pos.x;
+        float curY = pos.y;
+        int currentChar = 0;
+        boolean hasCases = false;
+        
+        
+        GL11.glPushMatrix();
+        
+        for (char c : str.toCharArray())
+        {
+            
+            GL11.glPopMatrix();
+            GL11.glPushMatrix();
+            
+            if (c == ' ')
+            {
+                curX += whiteSpace*size;
+            }
+            if (!hasCases)
+                c = Character.toLowerCase(c);
+            if (glyphMap.containsKey(c))
+            {
+                float offx = 0.0f;
+                float offy = 0.0f;
+                if (func != null)
+                {
+                    offx = func.getOffX(currentChar)*size;
+                    offy = func.getOffY(currentChar)*size;
+                    float[] color = func.getColor(currentChar);
+                    GL11.glColor3f(color[0],color[1],color[2]);
+                }
+
+                TextureData tex = glyphMap.get(c);
+                
+                GL11.glTranslatef(curX+offx,curY+offy,0.0f);
+                GL11.glScalef(size,size,1.0f);
+                
+                Graphics.bindAndPrintTexture(tex);
+                curX += tex.width*size;
+            }
+            curX += spacing*size;
+            currentChar++;
+        }
+        GL11.glColor4f(1.0f,1.0f,1.0f,1.0f);
+        GL11.glPopMatrix();
+    }
+    
+    
+    /** Piirtää tekstiä laajennetuilla parametreilla
+     *
+     * @param str piirrettävä teksti
+     * @param pos sijainti
+     * @param size tekstin koko, 1.0f on normaali, 0.5f puolet, 2.0f kaksinkertainen
+     * @param color tekstin väri taulukkona jossa 3 (RGB) tai 4 (RGBA) floattia
+     */
+    
+    class RenderTextNormal extends RenderTextCharacterHandler
+    {
+        float[] color;
+        RenderTextNormal(float[] color)
+        {
+            this.color = color;
+        }
+        float getOffX(int CharNum)
+        {
+            return 0.0f;
+        }
+        float getOffY(int CharNum)
+        {
+            return 0.0f;
+        }
+        float[] getColor(int CharNum)
+        {
+            return color;
+        }
+    }
+    
+    public void renderTextExt(String str, Vector2f pos, float size, float[] color)
+    {
+        
+        if (color.length < 3 || color.length > 4)
+            throw new IllegalArgumentException("color[] must be 3 or 4 elements long");
+        if (color.length == 4)
+            GL11.glColor4f(color[0],color[1],color[2],color[3]);
+        else
+            GL11.glColor3f(color[0],color[1],color[2]);
+        
+        RenderTextNormal func = new RenderTextNormal(color);
+        
+        renderTextFunc(str,pos,size,func);
+        
+    }
+        
+            
+
+    
+    /** Piirtää tekstiä
+     *
+     * @param str piirrettävä teksti
+     * @param pos sijainti
+     */
+    
+    public void renderText(String str, Vector2f pos)
+    {
+        
+        float[] color = {1.0f,1.0f,1.0f};
+        renderTextExt(str,pos,1.0f,color);
+    }
+    
+    class RenderTextCool extends RenderTextCharacterHandler
+    {
+        final private static float timeDivOff = 10;
+        final private static float timeDivColor = 90;
+        final private static float offShiftDiv = 1.0f;
+        final private static float hueShiftDiv = 20.0f;
+        
+        float getOffX(int CharNum)
+        {
+            return (float) Math.sin(CharNum/offShiftDiv+Main.getTime()/timeDivOff)*2;
+        }
+        float getOffY(int CharNum)
+        {
+            return (float) Math.cos(CharNum/offShiftDiv+Main.getTime()/timeDivOff)*2;
+        }
+        float[] getColor(int CharNum)
+        {
+            float hue = (float) (Main.getTime()/timeDivColor+CharNum/hueShiftDiv);
+            
+            
+            Color d = Color.getHSBColor(hue, 0.3f, 0.9f);
+          
+            return d.getRGBColorComponents(null);
+        }
+    }
+    
+    /** Piirtää koolia tekstiä
+     *
+     * @param str teksti
+     * @param pos sijainti
+     * @param size koko
+     */
+    
+    
+    public void renderTextCool(String str, Vector2f pos,float size)
+    {
+        
+        RenderTextCool func = new RenderTextCool();
+        
+        renderTextFunc(str,pos,size,func);
+    }
+    
+    
+    
+}
