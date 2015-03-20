@@ -101,8 +101,14 @@ public class Main {
             //}
             
             if(Keyboard.isKeyDown(KEY_UP)){
+                Graphics.setShaders(false);
                 Display.setTitle("Ylös");
-            } else Display.setTitle("testi");
+            }
+            else
+            {
+                Graphics.setShaders(true);
+                Display.setTitle("testi");
+            }
             Graphics.render();
             
             

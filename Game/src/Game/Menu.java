@@ -70,7 +70,7 @@ public class Menu extends Valikko implements Renderable {
         
         Graphics.getFont().renderText("Menutekstia!!!!!", new Vector2f(120,90));
         
-        float[] color = {1.0f,0.9f,1.0f};
+        float[] color = {1.0f,0.9f,0.6f};
         
         Graphics.getFont().renderTextExt("Lisaa menutekstia!!!!!", new Vector2f(((float)Math.sin(Main.getTime()/60)*100+200),190),2.0f,color);
         

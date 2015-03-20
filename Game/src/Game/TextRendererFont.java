@@ -157,6 +157,7 @@ public class TextRendererFont
                 Graphics.bindAndPrintTexture(tex);
                 curX += tex.width*size;
             }
+            
             curX += spacing*size;
             currentChar++;
         }
@@ -228,18 +229,18 @@ public class TextRendererFont
     
     class RenderTextCool extends RenderTextCharacterHandler
     {
-        final private static float timeDivOff = 10;
+        final private static float timeDivOff = 14;
         final private static float timeDivColor = 90;
         final private static float offShiftDiv = 1.0f;
         final private static float hueShiftDiv = 20.0f;
         
         float getOffX(int CharNum)
         {
-            return (float) Math.sin(CharNum/offShiftDiv+Main.getTime()/timeDivOff)*2;
+            return (float) Math.sin(CharNum/offShiftDiv+Main.getTime()/timeDivOff);
         }
         float getOffY(int CharNum)
         {
-            return (float) Math.cos(CharNum/offShiftDiv+Main.getTime()/timeDivOff)*2;
+            return (float) -Math.abs(Math.cos(CharNum/offShiftDiv+Main.getTime()/timeDivOff))*7;
         }
         float[] getColor(int CharNum)
         {
