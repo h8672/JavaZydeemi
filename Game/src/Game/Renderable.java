@@ -19,9 +19,9 @@ public interface Renderable {
     
     /** palauttaa objektin syvyyden
      * syvyys on millä "tasolla" objekti piiretään, eli onko se muiden objektien alla vai päällä
-     * @return Syvyys välillä -99 - 100
+     * @return Syvyys välillä -100  100
      */
-    public int getDepth();
+    public float getDepth();
 
     /** piirtää objektin
      *

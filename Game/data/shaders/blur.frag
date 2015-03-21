@@ -13,12 +13,11 @@ void main()
 
 	vec2 texCoord = gl_FragCoord;
 	
-	int i;
+	float i;
 	vec4 colMean = vec4(0,0,0,0);
-	float mults = 1.0f;
 	for (i = 0; i < samples*2; i++)
 	{
-		int trueI = 0;
+		float trueI = 0;
 		if (i < samples)
 			trueI = i+1;
 		else
@@ -39,12 +38,10 @@ void main()
 		col = col*mult;
 		
 		colMean += col;
-		mults+=1.0f*mult;
 	}
 	colMean += texture2D(sceneTex,vec2(texCoord.x/renderWidth, texCoord.y/renderHeight));
-	
-	mults/= multiplier;
-	colMean = colMean/mults;
+
+	colMean = colMean/multiplier;
 	
 	gl_FragColor = colMean;
 }

@@ -72,7 +72,9 @@ public class Main {
             Display.setDisplayMode(new DisplayMode(800,600));
             Display.setTitle("Hieno!");
             Display.create();
+            Display.setVSyncEnabled(true);
             Graphics.init(800,600); //ikkunan koko oltava sama
+            
 
         } catch (LWJGLException ex) {
             System.out.println("Test");
@@ -100,15 +102,16 @@ public class Main {
             //    System.out.println("Se on!");
             //}
             
-            if(Keyboard.isKeyDown(KEY_UP)){
-                Graphics.setShaders(false);
-                Display.setTitle("Ylös");
-            }
-            else
-            {
-                Graphics.setShaders(true);
-                Display.setTitle("testi");
-            }
+            if (Keyboard.isKeyDown(KEY_A))
+                Graphics.setShadersEnabled(false);
+            if (Keyboard.isKeyDown(KEY_Z))
+                Graphics.setShadersEnabled(true);
+            
+            if (Keyboard.isKeyDown(KEY_S))
+                Graphics.setMSAAEnabled(false);
+            if (Keyboard.isKeyDown(KEY_X))
+                Graphics.setMSAAEnabled(true);
+            
             Graphics.render();
             
             

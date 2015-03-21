@@ -59,9 +59,9 @@ public class Menu extends Valikko implements Renderable {
     }
     
     @Override
-    public int getDepth()
+    public float getDepth()
     {
-        return 100; // Menu on kaikista päällimmäisenä
+        return 100.0f; // Menu on kaikista päällimmäisenä
     }
     
     @Override
@@ -72,9 +72,15 @@ public class Menu extends Valikko implements Renderable {
         
         float[] color = {1.0f,0.9f,0.6f};
         
-        Graphics.getFont().renderTextExt("Lisaa menutekstia!!!!!", new Vector2f(((float)Math.sin(Main.getTime()/60)*100+200),190),2.0f,color);
-        
         if (Main.getTime() % 90 > 45)
-        Graphics.getFont().renderTextCool("ZIP ZOP ZIPPITY ZOOB!!!!!", new Vector2f(77,390),3.0f);
+            Graphics.getFont().renderTextExt("Lisaa menutekstia!!!!!", new Vector2f(((float)Math.sin(Main.getTime()/60)*100+200),190),2.0f,color);
+        
+        
+        String xy = "MSAA: ";
+        if (Graphics.getMSAAEnabled())
+            xy = xy+"Enabled x"+Graphics.getMSAASamples();
+        else
+            xy = xy+"Disabled";
+        Graphics.getFont().renderTextCool(xy, new Vector2f(77,390),3.0f);
     }
 }

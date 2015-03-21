@@ -87,7 +87,7 @@ public class TextRendererFont
                                 return;
                         }
 
-                        TextureData t = Graphics.loadTexture(file.toString());
+                        TextureData t = Graphics.loadTexture(file.toString(),false);
                         if (t.loaded)
                         {
                             glyphMap.put(glyph, t);
