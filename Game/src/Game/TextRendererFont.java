@@ -7,14 +7,7 @@ package Game;
 
 import java.awt.Color;
 import java.io.File;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.PathMatcher;
-import java.nio.file.Paths;
-import java.util.Optional;
 import java.util.TreeMap;
-import java.util.stream.Stream;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -62,40 +55,35 @@ public class TextRendererFont
         
         try
         {
-            
-            Stream<Path> stream =Files.walk(Paths.get(folder));
 
-            stream.forEach( file -> {
-
-                if (Files.isRegularFile(file))
+            File dir = new File(folder);
+            for (File file : dir.listFiles())
+            {
+                if (file.getName().endsWith((".png")))
                 {
-
-                    String filename = file.getFileName().toString();
-                    if (filename.contains(".png"))
+                    String filename = file.getName();
+                    filename = filename.split("\\.")[0];
+                    char glyph = 0;
+                    if (filename.length() == 1)
                     {
-                        filename = filename.split("\\.")[0];
-                        char glyph = 0;
-                        if (filename.length() == 1)
-                        {
-                            glyph = filename.charAt(0);
-                        }
+                        glyph = filename.charAt(0);
+                    }
+                    else
+                    {
+                        if (filenameToGlyphMap.containsKey(filename))
+                            glyph = filenameToGlyphMap.get(filename);
                         else
-                        {
-                            if (filenameToGlyphMap.containsKey(filename))
-                                glyph = filenameToGlyphMap.get(filename);
-                            else
-                                return;
-                        }
+                            return;
+                    }
 
-                        TextureData t = Graphics.loadTexture(file.toString(),false);
-                        if (t.loaded)
-                        {
-                            glyphMap.put(glyph, t);
-                        }
+                    TextureData t = Graphics.loadTexture(file.toString(),false);
+                    if (t.loaded)
+                    {
+                        glyphMap.put(glyph, t);
                     }
                 }
-                
-            });
+            }
+
         }
         catch (Exception e)
         {

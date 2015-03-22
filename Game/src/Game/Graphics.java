@@ -794,7 +794,7 @@ public class Graphics
     
         
         //blurrataan!!!
-        blurFBO(FBOGlowTex,10,5f,4f,1f);
+        blurFBO(FBOGlowTex,3,2f,4f,1f);
         
         // Blurrien piirto
         GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER,0); //FB 0 eli oikea ruutu
