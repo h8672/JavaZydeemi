@@ -24,7 +24,7 @@ public class Menu extends Valikko implements Renderable {
         x = 0;
         valinnat = new ArrayList();
         valinnat.add(otsikko);
-        Graphics.registerRenderable(this);
+        Graphics.registerRenderable(this,Graphics.MenuLayer);
     }
     
     public void addChoice(String valinta){

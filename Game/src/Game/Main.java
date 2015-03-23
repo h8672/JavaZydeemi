@@ -5,10 +5,12 @@
  */
 package Game;
 
+import java.util.Random;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.*;
 import static org.lwjgl.input.Keyboard.*;
 import org.lwjgl.opengl.*;
+import org.lwjgl.util.vector.Vector2f;
 
 /**
 import java.util.HashSet;
@@ -30,10 +32,19 @@ public class Main {
     /**
      * @param args the command line arguments
      */
+    private static Random randomizer;
     private static Menu menu;
-    private static float time;
+    private static int time;
+    
+    public static int randomInt() {
+        return randomizer.nextInt();
+    }
+    
+    public static float randomFloat() {
+        return randomizer.nextFloat();
+    }
 
-    public static float getTime() {
+    public static int getTime() {
         return time;
     }
 
@@ -67,6 +78,7 @@ public class Main {
     }
     
     private static void init(){
+        randomizer = new Random();
         
         try {
             Display.setDisplayMode(new DisplayMode(800,600));
@@ -101,7 +113,9 @@ public class Main {
             //if(input.isKeyDown(59)){
             //    System.out.println("Se on!");
             //}
-            
+            if (Mouse.isButtonDown(0))
+                
+                ParticleEffects.explode(new Vector2f(Mouse.getX(),600-Mouse.getY()));
             if (Keyboard.isKeyDown(KEY_A))
                 Graphics.setShadersEnabled(false);
             if (Keyboard.isKeyDown(KEY_Z))

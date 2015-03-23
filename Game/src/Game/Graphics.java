@@ -16,7 +16,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 
 class FBOTexPair
 {
@@ -79,91 +81,96 @@ public class Graphics
     private static Vector2f camera;
     private static ArrayList<TextRendererFont> fontArray;
     
-    private static ArrayList<TextureData> textureArray;
+    private static ArrayList<ImageData> imageDataArray;
+    private static HashMap<String,Texture> textureMap;
+    private static HashMap<String,Animation> animationMap;
     
     private static HashSet<Renderable> renderableList;
+    private static HashSet<Renderable> intermediateRenderableList;
+    private static HashSet<Renderable> menuRenderableList;
+    
+    private static LinkedList<Renderable> toBeDeletedRenderables;
+    final static int IntermediateLayer = 1;
+    final static int MenuLayer = 2;
+    final static int BaseLayer = 0;
+    
 
-    /** Lataa textuurin tiedostosta
+    /** Lataa kuvan tiedostosta
      *
-     * @param file tiedostonimi josta tekstuuri ladataa
-     * @return tekstuurin tiedot sisältävä TextureData
+     * @param filename tiedostonimi
+     * @param wrap onko openGL tekstuuri kiertyvä
+     * @return kuvan tiedot sisältävä ImageData
      */
-    public static TextureData loadTexture(String file, boolean wrap)
+    public static ImageData loadImageData(String filename, boolean wrap)
     {
-        TextureData tex;
-        tex = new TextureData();
-        InputStream inFile;
+        ImageData img;
+        img = new ImageData();
+        img.load(filename, wrap);
+        if (img.isLoaded())
+            imageDataArray.add(img);
+        else
+            img = null;
+        return img;
+    }
+    
+    /** Luo uuden tekstuurin ImageData kuvasta
+     *
+     * @param name uniikki nimi
+     * @param baseTex ladattu ImageData
+     * @return
+     */
+    public static Texture generateTexture(String name, ImageData baseTex)
+    {
+        Texture tex = new Texture(name,baseTex);
         
-        try
-        {
-            inFile = new FileInputStream(file);
-            try 
-            {
-                //Dekoodataan PNG filu 
-                PNGDecoder decoder = new PNGDecoder(inFile);
-                
-                //Varataan RGBA kuvalle tila (yksi pikseli vaatii 4 tavua)
-                ByteBuffer buffer = ByteBuffer.allocateDirect(decoder.getWidth()*decoder.getHeight()*4); 
-                decoder.decode(buffer, decoder.getWidth()*4, Format.RGBA);
-                
-                //buf lukutilaan
-                buffer.flip(); 
-                
-                int newTexID = GL11.glGenTextures(); //uusi openGL tekstuuri
-                
-                tex.glID = newTexID;
-                tex.width = decoder.getWidth();
-                tex.height = decoder.getHeight();
+        textureMap.put(name,tex);
 
-                //ladataan tekstuuri puskurista 
-                GL11.glBindTexture(GL11.GL_TEXTURE_2D, newTexID);
-                GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, decoder.getWidth(), decoder.getHeight(), 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
-                
-                //textuurin skaalaus
-                //GL11.GL_NEAREST nearest neighbor; pikselit erottuu
-                //GL11.GL_LINEAR lineaarinen blendaus; toimii hyvin ei pikseligrafiikalla
-                
-                GL11.glTexParameteri(GL11.GL_TEXTURE_2D,GL11.GL_TEXTURE_MIN_FILTER,GL11.GL_NEAREST); 
-                GL11.glTexParameteri(GL11.GL_TEXTURE_2D,GL11.GL_TEXTURE_MAG_FILTER,GL11.GL_NEAREST);
+        return tex;
+    }
+    
+    /** Luo uuden glowmapatun tekstuurin kahdesta ImageData kuvasta
+     *
+     * @param name uniikki nimi
+     * @param baseTex perus kuva
+     * @param glowTex glowmap kuva
+     * @return luotu Texture
+     */
+    public static Texture generateTexture(String name, ImageData baseTex, ImageData glowTex)
+    {
+        Texture tex = new Texture(name,baseTex,glowTex);
+        
+        textureMap.put(name,tex);
 
-                //tekstuuri jatkuu äärettömiin
-                if (wrap)
-                {
-                    GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
-                    GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
-                }
-                else //tekstuurilla ei jatku äärettömiin, tekstuurialueen ulkopuolella tasaista väriä
-                {
-                    //ja tasainen väri tässä tapauksessa on täysin läpinäkyvä musta
-                    
-                    float color[] = { 0.0f, 0.0f, 0.0f, 0.0f };
-                    
-                    //puskuriin tarpeeksi tilaa, LWJGL jostain syystä haluaa kaksinkertaisen tilan
-                    ByteBuffer bbuf = ByteBuffer.allocateDirect(8*4);
-                    FloatBuffer fbuf = bbuf.asFloatBuffer();
-                    fbuf.put(color);
+        return tex;
+    }
+    
+    /** Luo uuden glowmapatun tekstuurin ImageData kuvasta
+     *
+     * @param name uniikki nimi
+     * @param dTex ImageData, joka asetetaan tekstuurin peruskuvaksi ja glowmapiksi
+     * @return luotu Texture
+     */
+    public static Texture generateSelfGlowingTexture(String name, ImageData dTex)
+    {
+        Texture tex = new Texture(name,dTex,dTex);
+        
+        textureMap.put(name,tex);
 
-
-                    GL11.glTexParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_BORDER_COLOR, fbuf);
-                    GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL13.GL_CLAMP_TO_BORDER);
-                    GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL13.GL_CLAMP_TO_BORDER);
-
-                }
-                
-                tex.loaded = true;
-                textureArray.add(tex);
-            }
-            finally
-            {
-                inFile.close();
-            }
-            
-        }
-        catch (Exception e)
-        {
-            System.out.println("Error while loading texture '" + file + "' :"+e.toString());
-            return tex;
-        }
+        return tex;
+    }
+    
+    /** Lataa tekstuurin tiedostosta ja luo sen automaattisesti
+     * <p>
+     * suorittaa kaikki operaatiot tekstuurin saattamiseksi käyttökuntoon
+     * @param filename tiedostonimi mistä tekstuuri ladataan
+     * @param name uniikki nimi
+     * @param wrap onko tekstuuri ympärikiertyvä
+     * @return uusi Texture
+     */
+    public static Texture loadTexture(String filename,String name, boolean wrap)
+    {
+        Texture tex = new Texture(name,loadImageData(filename,wrap));
+        textureMap.put(name,tex);
         return tex;
     }
     
@@ -176,6 +183,7 @@ public class Graphics
     }
 
     /** Asettaa shaderit päälle tai pois
+     * <p>
      * älä kutsu Renderablen render() metodista!
      * @param enableShaders true, niin shaderit päälle
      */
@@ -250,6 +258,7 @@ public class Graphics
 
     /** Asetetaan MSAA (multisampled antialiasing) päälle tai pois
      * ei muuta mitään jos getMSAAAllowed() on false
+     * <p>
      * älä kutsu Renderablen render() metodista!
      * @param enable true asettaa MSAAn päälle, false poistaa sen käytöstä
      */
@@ -291,6 +300,7 @@ public class Graphics
     }
     
     /** Asettaa käytettävän AA sample määrän
+     * <p>
      * älä kutsu Renderablen render() metodista!
      *
      * @param samples käytettävien samplejen määrä
@@ -550,24 +560,35 @@ public class Graphics
         enableFBO = allowFBO;
         
         //perus objektien alustuksia
-        textureArray = new ArrayList<>();
+        imageDataArray = new ArrayList<>();
+        textureMap = new HashMap<>();
+        animationMap = new HashMap<>();
         camera = new Vector2f();
         
         //fonttien piirto kuntoon
         TextRendererFont.init();
-        loadTexture("./data/tekstuuri.png",true);
-        
         
         fontArray = new ArrayList<>();
         
         //ladataan uus fontti
         TextRendererFont font  = new TextRendererFont();
+        
         font.load("./data/font");
         
         fontArray.add(font);
         
         //ja tehdään vihdoin renderableList
         renderableList = new HashSet<>();
+        intermediateRenderableList = new HashSet<>();
+        menuRenderableList = new HashSet<>();
+        
+        toBeDeletedRenderables = new LinkedList<>();
+        
+        
+        loadData();
+        
+        
+        
         return true;
     }
     
@@ -581,7 +602,9 @@ public class Graphics
     }
     
     /** Lisää Renderablen piirtolistaan
+     * <p>
      *  käytä jokaiselle objekitlle jonka haluat piirrettäväksi
+     * <p>
      *  älä kutsu Renderablen render() metodista!
      * 
      * @param renderable piirtolistalle lisättävä objekti
@@ -591,42 +614,183 @@ public class Graphics
         renderableList.add(renderable);
     }
     
+    /** Lisää Renderablen piirtolistaan tietylle tasolle
+     * <p>
+     * tiettyjen piirtotasojen numerointi on seuraava: 0 = Graphics.BaseLayer = Alin taso,
+     * peligrafiikka, 1 = Graphics.IntermediateLayer = keskimmäinen taso, kaikki efektit,
+     * 2 = Graphics.MenuLayer = päällimmäinen taso, menuille tarkoitettu
+     * <p>
+     *  käytä jokaiselle objektille jonka haluat piirrettäväksi tietylle tasolle kuten menuobjektit
+     * <p>
+     *  älä kutsu Renderablen render() metodista!
+     * 
+     * @param renderable piirtolistalle lisättävä objekti
+     * @param stage tason numero 0-2
+     */
+    public static void registerRenderable(Renderable renderable,int stage)
+    {
+        switch (stage)
+        {
+            case 1:
+                intermediateRenderableList.add(renderable);
+                break;
+            case 2:
+                menuRenderableList.add(renderable);
+                break;
+            default:
+                renderableList.add(renderable);
+        }
+        
+    }
+    
     /** Poistaa Renderablen piirtolistasta
      *  käytä kun objekti tapetaan/poistetaan
+     * <p>
      *  älä kutsu Renderablen render() metodista!
      *
      * @param renderable
      */
     public static void removeRenderable(Renderable renderable)
     {
-        renderableList.remove(renderable);
+        toBeDeletedRenderables.add(renderable);
+        
     }
+    
+    private static void initGlowDrawing()
+    {
+        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, FBOGlow);
+        
+        GL11.glDisable(GL11.GL_ALPHA_TEST);
+        GL11.glEnable(GL11.GL_BLEND); 
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA,GL11.GL_ONE);
+    }
+    
+    private static void deInitGlowDrawing()
+    {
+        GL11.glDisable(GL11.GL_BLEND);
+        GL11.glEnable(GL11.GL_ALPHA_TEST);
+        
+        if (enableFBO)
+            GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, FBOScene);
+        else
+            GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
+    }
+
 
     /** Piirtää spriten 
      * 
      * @param tex TextureData
      * @param pos sijainti
      */
-    public static void drawSprite(TextureData tex, Vector2f pos)
+    public static void drawSprite(Texture tex, Vector2f pos)
     {
         GL11.glPushMatrix();
         GL11.glTranslatef(pos.x,pos.y,0.0f);
-        bindAndPrintTexture(tex);
+        
+        GL11.glPushMatrix();
+        bindAndPrintTexture(tex.getBaseImage());
+        
+        GL11.glPopMatrix();
+        if (tex.hasGlow() && isGlowEnabled())
+        {
+            initGlowDrawing();
+            bindAndPrintTexture(tex.getGlowImage());
+            deInitGlowDrawing();
+        }
+        
         GL11.glPopMatrix();
     }
     
-    /** Piirtää keskitetyn spriten pyörityksillä
-     * 
-     * @param tex TextureData
+    
+
+    /** Piirtää keskitetyn spriten
+     *
+     * @param tex piirrettävä Texture
      * @param pos sijainti
      * @param rot kulma asteina, kasvaa vastapäivään
+     * @param scale skaala x ja y suunnissa, 1.0f on normaalikoko
+     * @param glowPow tekstuurin glowmapin kerroin
      */
-    public static void drawSpriteCentered(TextureData tex, Vector2f pos, float rot)
+    public static void drawSpriteCentered(Texture tex, Vector2f pos, float rot, Vector2f scale, float glowPow)
     {
         GL11.glPushMatrix();
         GL11.glTranslatef(pos.x,pos.y,0.0f);
         GL11.glRotatef(rot,0,0,1);
-        bindAndPrintCenteredTexture(tex);
+        GL11.glScalef(scale.x,scale.y,0.0f);
+        GL11.glPushMatrix();
+        bindAndPrintCenteredTexture(tex.getBaseImage());
+        GL11.glPopMatrix();
+        
+        if (tex.hasGlow() && isGlowEnabled())
+        {
+            GL11.glColor3f(glowPow, glowPow, glowPow);
+            initGlowDrawing();
+            bindAndPrintCenteredTexture(tex.getGlowImage());
+            deInitGlowDrawing();
+            GL11.glColor3f(1.0f,1.0f,1.0f);
+        }
+        GL11.glPopMatrix();
+    }
+    
+    /** Piirtää keskitetyn spriten
+     * 
+     * @param tex piirrettävä Texture
+     * @param pos sijainti
+     * @param rot kulma asteina, kasvaa vastapäivään
+     */
+    public static void drawSpriteCentered(Texture tex, Vector2f pos, float rot)
+    {
+        GL11.glPushMatrix();
+        GL11.glTranslatef(pos.x,pos.y,0.0f);
+        GL11.glRotatef(rot,0,0,1);
+        
+        GL11.glPushMatrix();
+        bindAndPrintCenteredTexture(tex.getBaseImage());
+        GL11.glPopMatrix();
+        
+        if (tex.hasGlow())
+        {
+            initGlowDrawing();
+            bindAndPrintCenteredTexture(tex.getGlowImage());
+            deInitGlowDrawing();
+            
+        }
+        GL11.glPopMatrix();
+    }
+    
+    /** Piirtää keskitetyn spriten additiivisella blendauksella
+     *
+     * @param tex piirrettävä Texture
+     * @param pos sijainti
+     * @param rot kulma asteina
+     * @param scale skaala x ja y suunnissa, 1.0f on normaalikoko
+     */
+    public static void drawSpriteCenteredAdditive(Texture tex, Vector2f pos, float rot, Vector2f scale)
+    {
+        GL11.glPushMatrix();
+        GL11.glTranslatef(pos.x,pos.y,0.0f);
+        GL11.glRotatef(rot,0,0,1);
+        GL11.glScalef(scale.x,scale.y,0.0f);
+        GL11.glPushMatrix();
+        GL11.glDisable(GL11.GL_ALPHA_TEST);
+        GL11.glDisable(GL11.GL_DEPTH_TEST);
+        GL11.glEnable(GL11.GL_BLEND); 
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA,GL11.GL_ONE);
+        
+        bindAndPrintCenteredTexture(tex.getBaseImage());
+        
+        GL11.glEnable(GL11.GL_DEPTH_TEST);
+        GL11.glDisable(GL11.GL_BLEND);
+        GL11.glEnable(GL11.GL_ALPHA_TEST);
+        
+        
+        GL11.glPopMatrix();
+        if (isGlowEnabled())
+        {
+            initGlowDrawing();
+            bindAndPrintCenteredTexture(tex.getBaseImage());
+            deInitGlowDrawing();
+        }
         GL11.glPopMatrix();
     }
     
@@ -634,11 +798,11 @@ public class Graphics
      * muokkaa GL matriisia, käytä varoen
      * @param tex TextureData object to use
      */
-    public static void bindAndPrintCenteredTexture(TextureData tex)
+    public static void bindAndPrintCenteredTexture(ImageData tex)
     {
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D,tex.glID);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D,tex.getGLName());
 
-        GL11.glScalef(tex.width, tex.height, 1.0f);
+        GL11.glScalef(tex.getWidth(), tex.getHeight(), 1.0f);
         
         GL11.glBegin(GL11.GL_QUADS);
         
@@ -661,11 +825,11 @@ public class Graphics
      * muokkaa GL matriisia, käytä varoen
      * @param tex TextureData object to use
      */
-    public static void bindAndPrintTexture(TextureData tex)
+    public static void bindAndPrintTexture(ImageData tex)
     {
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D,tex.glID);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D,tex.getGLName());
 
-        GL11.glScalef(tex.width, tex.height, 1.0f);
+        GL11.glScalef(tex.getWidth(), tex.getHeight(), 1.0f);
         
         GL11.glBegin(GL11.GL_QUADS);
         
@@ -770,8 +934,9 @@ public class Graphics
     private static void renderBlur()
     {
         //aloitetaan FBOGlow framebufferilla
+        /*
         GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER,FBOGlow);
-        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+        //GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
         
         GL20.glUseProgram(shaderGlowMapProgram); //aktivoidaan glowmap shaderi
         GL13.glActiveTexture(GL13.GL_TEXTURE0); //tekstuuriyksiköksi 0 (varmuuden vuoksi)
@@ -789,12 +954,16 @@ public class Graphics
         GL20.glUniform1i(sH,viewHeight);
         
         renderFBO(FBOTempTex); //ja piirretään scene glow framebufferiin
-        
+        */
         GL11.glDisable(GL11.GL_ALPHA_TEST); //alpha test pois
     
         
         //blurrataan!!!
-        blurFBO(FBOGlowTex,10,5f,4f,1f);
+        blurFBO(FBOGlowTex,18,17f,1f,0.5f);
+        
+        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, FBOGlow);
+        
+        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
         
         // Blurrien piirto
         GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER,0); //FB 0 eli oikea ruutu
@@ -818,10 +987,11 @@ public class Graphics
         GL11.glDisable(GL11.GL_BLEND);
     }
     
-    private static void renderRenderables()
+    private static void renderRenderables(HashSet<Renderable> list)
     {
+        
         //käydään lista läpi ja renderöidään mikäli on näkyvä
-        for (Renderable ren : renderableList)
+        for (Renderable ren : list)
         {
             if (ren.isVisible())
             {
@@ -837,11 +1007,35 @@ public class Graphics
             }
         }
     }
+    
+
     /** Piirtää openGL jutut
      *
      */
     public static void render()
     {
+        //poistetaan poistettavat
+        for (Renderable removeRen : toBeDeletedRenderables)
+        {
+            if (renderableList.contains(removeRen))
+            {
+                renderableList.remove(removeRen);
+                continue;
+            }
+            if (intermediateRenderableList.contains(removeRen))
+            {
+                intermediateRenderableList.remove(removeRen);
+                continue;
+            }
+            if (menuRenderableList.contains(removeRen))
+            {
+                menuRenderableList.remove(removeRen);
+                continue;
+            }
+            
+        }
+        toBeDeletedRenderables.clear();
+        
         //renderöinnin alkujutut
         
         //nollataan matriisi
@@ -867,39 +1061,17 @@ public class Graphics
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
         
         //piirretään
-        renderRenderables();
-        
-        //testijuttuja
-        GL11.glPushMatrix();
-        GL11.glTranslatef(0,0,-1.0f);
-        fontArray.get(0).renderTextCool("TEKSTIIIIIIIIIIII", new Vector2f(16,16),1.0f);
-        GL11.glPopMatrix();
-        GL11.glTranslatef(0,0,0.99f);
-        
-        TextureData tiili = textureArray.get(0);
-        GL11.glDisable(GL11.GL_TEXTURE_2D);
-        GL11.glBegin(GL11.GL_QUADS);
-        GL11.glColor3f(0.0f,1.0f,1.0f);
-        GL11.glVertex2f(60,0);
-        GL11.glVertex2f(60,1234);
-        GL11.glVertex2f(120,1234);
-        GL11.glVertex2f(120,0);
-        
-        GL11.glColor3f(1.0f,1.0f,0.0f);
-        GL11.glVertex2f(180,0);
-        GL11.glVertex2f(180,1234);
-        GL11.glVertex2f(240,1234);
-        GL11.glVertex2f(240,0);
-        GL11.glEnd();
-        
-        
+        renderRenderables(renderableList);
         
         GL11.glColor3f(1.0f,1.0f,1.0f);
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         
-        
-        //syvyystesti pois häiritsemästä kun käsitellään framebuffereita4
+        GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
+        renderRenderables(intermediateRenderableList);
         GL11.glDisable(GL11.GL_DEPTH_TEST);
+        //syvyystesti pois häiritsemästä kun käsitellään framebuffereita4
+        GL11.glLoadIdentity();
+        
         if (enableFBO) // vai käsitelläänkö?
         {
             
@@ -947,8 +1119,76 @@ public class Graphics
             */
             
         }
+        boolean fboWasEnabled= enableFBO;
+        enableFBO = false;
+        
+        renderRenderables(menuRenderableList);
+        enableFBO = fboWasEnabled;
 
         
+        getFont().renderTextCool("RenderableCount: "+Integer.toString(getRenderableCount()),new Vector2f(32,32),2.0f);
+        
+    }
+
+    static Animation getAnimation(String  anim)
+    {
+        return animationMap.get(anim);
     }
     
+    static Texture getTexture(String tex)
+    {
+        return textureMap.get(tex);
+    }
+
+    /** Palauttaa onko glow päällä
+     *
+     * @return tosi, jos glow on päällä
+     */
+    public static boolean isGlowEnabled()
+    {
+        if (!enableFBO)
+            return false;
+        
+        return enableShaders;
+    }
+
+    private static void loadData()
+    {
+        generateTexture("default",loadImageData("./data/tekstuuri.png",true),loadImageData("./data/tekstuuriglow.png",true));
+        generateTexture("explosion1",loadImageData("./data/fire/explosion.png",false));
+        
+        Animation anim = new Animation("fieryFlames");
+        anim.addFrame(generateSelfGlowingTexture("fire1",loadImageData("./data/fire/f1.png",false)));
+        anim.addFrame(generateSelfGlowingTexture("fire2",loadImageData("./data/fire/f2.png",false)));
+        anim.addFrame(generateSelfGlowingTexture("fire3",loadImageData("./data/fire/f3.png",false)));
+        anim.addFrame(generateSelfGlowingTexture("fire4",loadImageData("./data/fire/f4.png",false)));
+        anim.setRandomized(true);
+        
+        animationMap.put(anim.getName(),anim);
+        
+        anim = new Animation("flameOut");
+        anim.addFrame(generateSelfGlowingTexture("fireout1",loadImageData("./data/fire/fo1.png",false)));
+        anim.addFrame(generateSelfGlowingTexture("fireout2",loadImageData("./data/fire/fo2.png",false)));
+        anim.addFrame(generateSelfGlowingTexture("fireout3",loadImageData("./data/fire/fo3.png",false)));
+        
+        animationMap.put(anim.getName(),anim);
+    }
+    
+    public static int getIntermediateRenderableCount()
+    {
+        return intermediateRenderableList.size();
+    }
+    
+    public static int getMenuRenderableCount()
+    {
+        return menuRenderableList.size();
+    }
+    public static int getBaseRenderableCount()
+    {
+        return renderableList.size();
+    }
+    public static int getRenderableCount()
+    {
+        return getIntermediateRenderableCount()+getMenuRenderableCount()+getBaseRenderableCount();
+    }
 }
