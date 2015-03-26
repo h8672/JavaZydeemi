@@ -7,14 +7,7 @@ package Game;
 
 import java.awt.Color;
 import java.io.File;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.PathMatcher;
-import java.nio.file.Paths;
-import java.util.Optional;
 import java.util.TreeMap;
-import java.util.stream.Stream;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -47,7 +40,7 @@ public class TextRendererFont
     }
     
     
-    private TreeMap<Character,TextureData> glyphMap;
+    private TreeMap<Character,Texture> glyphMap;
     TextRendererFont()
     {
         glyphMap = new TreeMap<>();
@@ -62,40 +55,35 @@ public class TextRendererFont
         
         try
         {
-            
-            Stream<Path> stream =Files.walk(Paths.get(folder));
 
-            stream.forEach( file -> {
-
-                if (Files.isRegularFile(file))
+            File dir = new File(folder);
+            for (File file : dir.listFiles())
+            {
+                if (file.getName().endsWith((".png")))
                 {
-
-                    String filename = file.getFileName().toString();
-                    if (filename.contains(".png"))
+                    String filename = file.getName();
+                    filename = filename.split("\\.")[0];
+                    char glyph = 0;
+                    if (filename.length() == 1)
                     {
-                        filename = filename.split("\\.")[0];
-                        char glyph = 0;
-                        if (filename.length() == 1)
-                        {
-                            glyph = filename.charAt(0);
-                        }
+                        glyph = filename.charAt(0);
+                    }
+                    else
+                    {
+                        if (filenameToGlyphMap.containsKey(filename))
+                            glyph = filenameToGlyphMap.get(filename);
                         else
-                        {
-                            if (filenameToGlyphMap.containsKey(filename))
-                                glyph = filenameToGlyphMap.get(filename);
-                            else
-                                return;
-                        }
+                            return;
+                    }
 
-                        TextureData t = Graphics.loadTexture(file.toString(),false);
-                        if (t.loaded)
-                        {
-                            glyphMap.put(glyph, t);
-                        }
+                    Texture t = Graphics.loadTexture(file.toString(),filename,false);
+                    if (t.isLoaded())
+                    {
+                        glyphMap.put(glyph, t);
                     }
                 }
-                
-            });
+            }
+
         }
         catch (Exception e)
         {
@@ -149,13 +137,13 @@ public class TextRendererFont
                     GL11.glColor3f(color[0],color[1],color[2]);
                 }
 
-                TextureData tex = glyphMap.get(c);
+                Texture tex = glyphMap.get(c);
                 
                 GL11.glTranslatef(curX+offx,curY+offy,0.0f);
                 GL11.glScalef(size,size,1.0f);
                 
-                Graphics.bindAndPrintTexture(tex);
-                curX += tex.width*size;
+                Drawing.bindAndPrintTexture(tex.getBaseImage());
+                curX += tex.getBaseImage().getWidth()*size;
             }
             
             curX += spacing*size;
@@ -166,13 +154,7 @@ public class TextRendererFont
     }
     
     
-    /** Piirtää tekstiä laajennetuilla parametreilla
-     *
-     * @param str piirrettävä teksti
-     * @param pos sijainti
-     * @param size tekstin koko, 1.0f on normaali, 0.5f puolet, 2.0f kaksinkertainen
-     * @param color tekstin väri taulukkona jossa 3 (RGB) tai 4 (RGBA) floattia
-     */
+    
     
     class RenderTextNormal extends RenderTextCharacterHandler
     {
@@ -195,6 +177,13 @@ public class TextRendererFont
         }
     }
     
+    /** Piirtää tekstiä laajennetuilla parametreilla
+     *
+     * @param str piirrettävä teksti
+     * @param pos sijainti
+     * @param size tekstin koko, 1.0f on normaali, 0.5f puolet, 2.0f kaksinkertainen
+     * @param color tekstin väri taulukkona jossa 3 (RGB) tai 4 (RGBA) floattia
+     */
     public void renderTextExt(String str, Vector2f pos, float size, float[] color)
     {
         
