@@ -42,13 +42,14 @@ public class ExplosionParticle extends ParticleFX
      * lisää partikkelin Graphics.IntermediateLayer Renderable listaan
      *
      */
-    public ExplosionParticle ()
+    public ExplosionParticle (float size)
     {
         pos = new Vector2f();
-        scale = new Vector2f(0.4f,0.4f);
+        scale = new Vector2f(size,size);
         tex = Graphics.getTexture("explosion1");
         Graphics.registerRenderable(this,Graphics.IntermediateLayer);
         rotation = Main.randomFloat()*360;
+        
     }
 
     @Override
@@ -64,7 +65,7 @@ public class ExplosionParticle extends ParticleFX
     @Override
     public void render()
     {
-        Graphics.drawSpriteCenteredAdditive(tex, pos,rotation,scale);
+        Drawing.drawSpriteCenteredAdditive(tex, pos,rotation,scale);
         if (timer == 0)
         Graphics.removeRenderable(this);
         timer--;

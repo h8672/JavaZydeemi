@@ -14,6 +14,7 @@ import org.lwjgl.util.vector.Vector2f;
 public class FireParticle extends ParticleFX
 {
     private Vector2f pos;
+    private Vector2f vel;
     private Vector2f scale;
     float rotation = 0;
 
@@ -45,11 +46,12 @@ public class FireParticle extends ParticleFX
      */
     public FireParticle ()
     {
+        vel = new Vector2f();
         pos = new Vector2f();
         scale = new Vector2f(1,1);
         anim = new Animator(Graphics.getAnimation("fieryFlames"));
         Graphics.registerRenderable(this,Graphics.IntermediateLayer);
-        timer = Math.abs(Main.randomInt())%16+4;
+        timer = Math.abs(Main.randomInt())%16+16;
         rotation = Main.randomFloat()*360;
     }
 
@@ -70,7 +72,7 @@ public class FireParticle extends ParticleFX
         Texture tex = anim.getTexture();
         
        
-            Graphics.drawSpriteCenteredAdditive(tex, pos,rotation,scale);
+        Drawing.drawSpriteCenteredAdditive(tex, pos,rotation,scale);
         
         anim.advance();
         timer--;
@@ -80,8 +82,18 @@ public class FireParticle extends ParticleFX
             
         }
         
-        pos.x += Main.randomFloat()*4-2;
-        pos.y += Main.randomFloat()*4-2;
+        
+        vel.x += Main.randomFloat()-0.5;
+        vel.y += Main.randomFloat()-0.5;
+        
+        vel.x = Math.max(vel.x,-1);
+        vel.x = Math.min(vel.x,1);
+        
+        vel.y = Math.max(vel.y,-1);
+        vel.y = Math.min(vel.y,1);
+        
+        pos.x += vel.x;
+        pos.y += vel.y;
         
         scale.x *= 0.96+0.05*Main.randomFloat();
         scale.y *= 0.96+0.05*Main.randomFloat();

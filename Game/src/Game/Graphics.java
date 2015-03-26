@@ -18,7 +18,9 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
+import org.lwjgl.BufferUtils;
 
 class FBOTexPair
 {
@@ -28,6 +30,14 @@ class FBOTexPair
     }
     public int FBO;
     public int Tex;
+}
+
+class ShockWaveData
+{
+    public Vector2f pos;
+    public float size;
+    public float maxSize;
+    public float vel;
 }
 
 
@@ -50,11 +60,12 @@ public class Graphics
     private static boolean enableShaders;
     private static boolean allowShaders;
     
-    private static int shaderBlurProgram;
-    private static int shaderBlur;
+    private static int shaderShockProgram;
+    private static int shaderShock;
     
-    private static int shaderGlowMap;
-    private static int shaderGlowMapProgram;
+    private final static int shaderShockMax = 10;
+    
+    private static LinkedList<ShockWaveData> shaderShockArray;
     
     private static int shaderProgram;
     private static int shaderDisplacer;
@@ -63,17 +74,13 @@ public class Graphics
     private static int FBOTemp;
     private static int FBOTempTex;
     
-    private static int FBOBlur;
-    private static int FBOBlurTex;
+    private static int FBOTemp2;
+    private static int FBOTemp2Tex;
     
-    private static int FBOBlur2;
-    private static int FBOBlur2Tex;
-    
-    private static int FBOGlow;
-    private static int FBOGlowTex;
     
     private static int FBOScene;
     private static int FBOSceneTex;
+    
     private static int RBODepth;
     
     private static int viewWidth;
@@ -90,9 +97,9 @@ public class Graphics
     private static HashSet<Renderable> menuRenderableList;
     
     private static LinkedList<Renderable> toBeDeletedRenderables;
-    final static int IntermediateLayer = 1;
-    final static int MenuLayer = 2;
-    final static int BaseLayer = 0;
+    final public static int IntermediateLayer = 1;
+    final public static int MenuLayer = 2;
+    final public static int BaseLayer = 0;
     
 
     /** Lataa kuvan tiedostosta
@@ -490,16 +497,9 @@ public class Graphics
             FBOTempTex = tmp.Tex;
             
             tmp = generateScreenFBO();
-            FBOBlur= tmp.FBO;
-            FBOBlurTex = tmp.Tex;
+            FBOTemp2 = tmp.FBO;
+            FBOTemp2Tex = tmp.Tex;
             
-            tmp = generateScreenFBO();
-            FBOBlur2 = tmp.FBO;
-            FBOBlur2Tex = tmp.Tex;
-            
-            tmp = generateScreenFBO();
-            FBOGlow = tmp.FBO;
-            FBOGlowTex = tmp.Tex;
 
             
             //alustetaan FBOScenen syvyyspuskuri
@@ -520,32 +520,33 @@ public class Graphics
                 
                 shaderDisplacer = compileShader("./data/shaders/displace.frag",GL20.GL_FRAGMENT_SHADER);
                 shaderVertexDefault = compileShader("./data/shaders/def.vert",GL20.GL_VERTEX_SHADER);
-                shaderBlur = compileShader("./data/shaders/blur.frag",GL20.GL_FRAGMENT_SHADER);
-                shaderGlowMap = compileShader("./data/shaders/glow.frag",GL20.GL_FRAGMENT_SHADER);
+                shaderShock = compileShader("./data/shaders/shock.frag",GL20.GL_FRAGMENT_SHADER);
+                
                 
                 //tehdään shader ohjelmat
                 shaderProgram = GL20.glCreateProgram();
-                shaderBlurProgram = GL20.glCreateProgram();
-                shaderGlowMapProgram = GL20.glCreateProgram();
+                shaderShockProgram = GL20.glCreateProgram();
 
                 //ja linkitetään asiat niihin
                 GL20.glAttachShader(shaderProgram,shaderVertexDefault);
                 GL20.glAttachShader(shaderProgram,shaderDisplacer);
                 GL20.glLinkProgram(shaderProgram);
 
-                GL20.glAttachShader(shaderBlurProgram,shaderBlur);
-                GL20.glLinkProgram(shaderBlurProgram);
-
-                GL20.glAttachShader(shaderGlowMapProgram,shaderGlowMap);
-                GL20.glLinkProgram(shaderGlowMapProgram);
+                GL20.glAttachShader(shaderShockProgram,shaderShock);
+                GL20.glLinkProgram(shaderShockProgram);
+                
+                shaderShockArray = new LinkedList<>();
+                
                 allowShaders = true;
                 System.out.println("Shaders initialized succesfully");
+                
             }
             catch (Exception e)
             {
-                System.out.println("Failed to initialize shaders");
+                System.out.println("Failed to initialize shaders "+e);
                 allowShaders = false;
             }
+            
         }
         
         if (!allowFBO)
@@ -656,199 +657,6 @@ public class Graphics
         
     }
     
-    private static void initGlowDrawing()
-    {
-        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, FBOGlow);
-        
-        GL11.glDisable(GL11.GL_ALPHA_TEST);
-        GL11.glEnable(GL11.GL_BLEND); 
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA,GL11.GL_ONE);
-    }
-    
-    private static void deInitGlowDrawing()
-    {
-        GL11.glDisable(GL11.GL_BLEND);
-        GL11.glEnable(GL11.GL_ALPHA_TEST);
-        
-        if (enableFBO)
-            GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, FBOScene);
-        else
-            GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
-    }
-
-
-    /** Piirtää spriten 
-     * 
-     * @param tex TextureData
-     * @param pos sijainti
-     */
-    public static void drawSprite(Texture tex, Vector2f pos)
-    {
-        GL11.glPushMatrix();
-        GL11.glTranslatef(pos.x,pos.y,0.0f);
-        
-        GL11.glPushMatrix();
-        bindAndPrintTexture(tex.getBaseImage());
-        
-        GL11.glPopMatrix();
-        if (tex.hasGlow() && isGlowEnabled())
-        {
-            initGlowDrawing();
-            bindAndPrintTexture(tex.getGlowImage());
-            deInitGlowDrawing();
-        }
-        
-        GL11.glPopMatrix();
-    }
-    
-    
-
-    /** Piirtää keskitetyn spriten
-     *
-     * @param tex piirrettävä Texture
-     * @param pos sijainti
-     * @param rot kulma asteina, kasvaa vastapäivään
-     * @param scale skaala x ja y suunnissa, 1.0f on normaalikoko
-     * @param glowPow tekstuurin glowmapin kerroin
-     */
-    public static void drawSpriteCentered(Texture tex, Vector2f pos, float rot, Vector2f scale, float glowPow)
-    {
-        GL11.glPushMatrix();
-        GL11.glTranslatef(pos.x,pos.y,0.0f);
-        GL11.glRotatef(rot,0,0,1);
-        GL11.glScalef(scale.x,scale.y,0.0f);
-        GL11.glPushMatrix();
-        bindAndPrintCenteredTexture(tex.getBaseImage());
-        GL11.glPopMatrix();
-        
-        if (tex.hasGlow() && isGlowEnabled())
-        {
-            GL11.glColor3f(glowPow, glowPow, glowPow);
-            initGlowDrawing();
-            bindAndPrintCenteredTexture(tex.getGlowImage());
-            deInitGlowDrawing();
-            GL11.glColor3f(1.0f,1.0f,1.0f);
-        }
-        GL11.glPopMatrix();
-    }
-    
-    /** Piirtää keskitetyn spriten
-     * 
-     * @param tex piirrettävä Texture
-     * @param pos sijainti
-     * @param rot kulma asteina, kasvaa vastapäivään
-     */
-    public static void drawSpriteCentered(Texture tex, Vector2f pos, float rot)
-    {
-        GL11.glPushMatrix();
-        GL11.glTranslatef(pos.x,pos.y,0.0f);
-        GL11.glRotatef(rot,0,0,1);
-        
-        GL11.glPushMatrix();
-        bindAndPrintCenteredTexture(tex.getBaseImage());
-        GL11.glPopMatrix();
-        
-        if (tex.hasGlow())
-        {
-            initGlowDrawing();
-            bindAndPrintCenteredTexture(tex.getGlowImage());
-            deInitGlowDrawing();
-            
-        }
-        GL11.glPopMatrix();
-    }
-    
-    /** Piirtää keskitetyn spriten additiivisella blendauksella
-     *
-     * @param tex piirrettävä Texture
-     * @param pos sijainti
-     * @param rot kulma asteina
-     * @param scale skaala x ja y suunnissa, 1.0f on normaalikoko
-     */
-    public static void drawSpriteCenteredAdditive(Texture tex, Vector2f pos, float rot, Vector2f scale)
-    {
-        GL11.glPushMatrix();
-        GL11.glTranslatef(pos.x,pos.y,0.0f);
-        GL11.glRotatef(rot,0,0,1);
-        GL11.glScalef(scale.x,scale.y,0.0f);
-        GL11.glPushMatrix();
-        GL11.glDisable(GL11.GL_ALPHA_TEST);
-        GL11.glDisable(GL11.GL_DEPTH_TEST);
-        GL11.glEnable(GL11.GL_BLEND); 
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA,GL11.GL_ONE);
-        
-        bindAndPrintCenteredTexture(tex.getBaseImage());
-        
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
-        GL11.glDisable(GL11.GL_BLEND);
-        GL11.glEnable(GL11.GL_ALPHA_TEST);
-        
-        
-        GL11.glPopMatrix();
-        if (isGlowEnabled())
-        {
-            initGlowDrawing();
-            bindAndPrintCenteredTexture(tex.getBaseImage());
-            deInitGlowDrawing();
-        }
-        GL11.glPopMatrix();
-    }
-    
-    /** Piirtää keskitetyn teksturoidun neliön
-     * muokkaa GL matriisia, käytä varoen
-     * @param tex TextureData object to use
-     */
-    public static void bindAndPrintCenteredTexture(ImageData tex)
-    {
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D,tex.getGLName());
-
-        GL11.glScalef(tex.getWidth(), tex.getHeight(), 1.0f);
-        
-        GL11.glBegin(GL11.GL_QUADS);
-        
-        GL11.glTexCoord2f(0,0);
-        GL11.glVertex2f(-0.5f,-0.5f);
-        
-        GL11.glTexCoord2f(1,0);
-        GL11.glVertex2f(0.5f,-0.5f);
-        
-        GL11.glTexCoord2f(1,1);
-        GL11.glVertex2f(0.5f,0.5f);
-        
-        GL11.glTexCoord2f(0,1);
-        GL11.glVertex2f(-0.5f,0.5f);
-        
-        GL11.glEnd();
-    }
-    
-    /** Piirtää teksturoidun neliön
-     * muokkaa GL matriisia, käytä varoen
-     * @param tex TextureData object to use
-     */
-    public static void bindAndPrintTexture(ImageData tex)
-    {
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D,tex.getGLName());
-
-        GL11.glScalef(tex.getWidth(), tex.getHeight(), 1.0f);
-        
-        GL11.glBegin(GL11.GL_QUADS);
-        
-        GL11.glTexCoord2f(0,0);
-        GL11.glVertex2f(0,0);
-        
-        GL11.glTexCoord2f(1,0);
-        GL11.glVertex2f(1f,0f);
-        
-        GL11.glTexCoord2f(1,1);
-        GL11.glVertex2f(1f,1f);
-        
-        GL11.glTexCoord2f(0,1);
-        GL11.glVertex2f(0f,1f);
-        
-        GL11.glEnd();
-
-    }
-    
     //piirtää (FBO) tekstuurin koko ruudun alueelle
     private static void renderFBO(int fbo)
     {
@@ -880,109 +688,64 @@ public class Graphics
         GL11.glVertex2f(0,viewHeight);
         GL11.glEnd();
     }
-    //piirtää blurria käyttämällä FBOBlur ja FBOBlur2 framebuffereita
-    //shadereitten testi 
-    private static void blurFBO(int FBO, int samples, float mult, float depth, float power)
-    {
-        //FBOBlur piiron kohteeksi
-        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER,FBOBlur);
-        //tyhjennetään se ensiksi
-        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-        
-        GL20.glUseProgram(shaderBlurProgram); //blurri käyttöön
-        GL13.glActiveTexture(GL13.GL_TEXTURE0);
-        
-        //shaderin uniform muuttujien osoitteet
-        int sTex = GL20.glGetUniformLocation(shaderBlurProgram, "sceneTex");
-        int sW = GL20.glGetUniformLocation(shaderBlurProgram, "renderWidth");
-        int sH = GL20.glGetUniformLocation(shaderBlurProgram, "renderHeight");
-        int sSamples = GL20.glGetUniformLocation(shaderBlurProgram, "samples");
-        int sDepth = GL20.glGetUniformLocation(shaderBlurProgram, "depth");
-        int sPower = GL20.glGetUniformLocation(shaderBlurProgram, "power");
-        int sMultiplier = GL20.glGetUniformLocation(shaderBlurProgram, "multiplier");
-        int sMode = GL20.glGetUniformLocation(shaderBlurProgram, "mode");
-
-        
-        GL20.glUniform1i(sTex,0); //tekstuuriyksikkö 0
-        GL20.glUniform1i(sW,viewWidth); //näytön koot
-        GL20.glUniform1i(sH,viewHeight);
-        
-        //muita blur muuttujia
-        GL20.glUniform1f(sPower, power); //potenssi, pienempi-> enemmän blurria
-        GL20.glUniform1f(sDepth, depth); //"syvyys", ennemminkin samplejen väli
-        GL20.glUniform1i(sSamples, samples); //sample määrä
-        GL20.glUniform1f(sMultiplier, mult); //jakaja
-        
-        GL20.glUniform1i(sMode,0); //horisontaalinen blur ensiksi
-        
-        renderFBO(FBO);
-        
-        //Toinen Blur (vertikaalinen)
-
-        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER,FBOBlur2);
-
-        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-
-        GL13.glActiveTexture(GL13.GL_TEXTURE0);
-        
-        GL20.glUniform1i(sMode,1); //vertikaalinen blur
-        
-        renderFBO(FBOBlurTex);
-    }
     
     //suorittaa hienot shaderit
-    private static void renderBlur()
+    private static void renderShocks()
     {
-        //aloitetaan FBOGlow framebufferilla
-        /*
-        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER,FBOGlow);
-        //GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-        
-        GL20.glUseProgram(shaderGlowMapProgram); //aktivoidaan glowmap shaderi
-        GL13.glActiveTexture(GL13.GL_TEXTURE0); //tekstuuriyksiköksi 0 (varmuuden vuoksi)
-    
-        
-        //otetaan shaderin uniform muuttujien osoitteeet...
-        
-        int sTex = GL20.glGetUniformLocation(shaderGlowMapProgram, "sceneTex");
-        int sW = GL20.glGetUniformLocation(shaderGlowMapProgram, "renderWidth");
-        int sH = GL20.glGetUniformLocation(shaderGlowMapProgram, "renderHeight");
-        
-        //...ja asetetaan niille arvot
-        GL20.glUniform1i(sTex,0);       //tekstuuriyksikkö 0
-        GL20.glUniform1i(sW,viewWidth); //ikkunan koko
-        GL20.glUniform1i(sH,viewHeight);
-        
-        renderFBO(FBOTempTex); //ja piirretään scene glow framebufferiin
-        */
+
         GL11.glDisable(GL11.GL_ALPHA_TEST); //alpha test pois
-    
         
-        //blurrataan!!!
-        blurFBO(FBOGlowTex,18,17f,1f,0.5f);
-        
-        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, FBOGlow);
+        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER,0); //piirretään näytölle
         
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+        GL20.glUseProgram(shaderShockProgram);
+        GL13.glActiveTexture(GL13.GL_TEXTURE0);
         
-        // Blurrien piirto
-        GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER,0); //FB 0 eli oikea ruutu
-        
-        //tyhjennetään ensiksi
-        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-        
-        GL20.glUseProgram(0); //shaderit mäkeen, ei blurria enään kiitos
-        
-        renderFBO(FBOTemp); //ja piiretään Scene
+        int sTex = GL20.glGetUniformLocation(shaderShockProgram, "sceneTex");
+        int sW = GL20.glGetUniformLocation(shaderShockProgram, "renderWidth");
+        int sH = GL20.glGetUniformLocation(shaderShockProgram, "renderHeight");
+        int sSCount = GL20.glGetUniformLocation(shaderShockProgram, "shockCount");
+        int sShockPos = GL20.glGetUniformLocation(shaderShockProgram, "shockPos");
+        int sShockSize = GL20.glGetUniformLocation(shaderShockProgram, "shockSize");
         
         
-         //Additive blend cinematic bloomille
-        GL11.glEnable(GL11.GL_BLEND); 
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA,GL11.GL_ONE);
+ 
+        int currentShocks = shaderShockArray.size();
+        int maxShocks= shaderShockMax;
         
-        //piirretään cinematic bloom scenen päälle
-        renderFBO(FBOBlur2Tex); 
+        //täytetään shaderin uniform tiedot
         
+        GL20.glUniform1i(sTex,0);
+        GL20.glUniform1i(sW,viewWidth);
+        GL20.glUniform1i(sH,viewHeight);
+        GL20.glUniform1i(sSCount,currentShocks);
+
+        FloatBuffer posBuf = BufferUtils.createFloatBuffer(maxShocks*2);
+        FloatBuffer sBuf = BufferUtils.createFloatBuffer(maxShocks);
+
+        for (Iterator<ShockWaveData> it = shaderShockArray.iterator(); it.hasNext();)
+        {
+            ShockWaveData sw = it.next();
+            posBuf.put(sw.pos.x);
+            posBuf.put(viewHeight-sw.pos.y);
+            sBuf.put(sw.size);
+            sw.size+=sw.vel;
+            if (sw.vel < 1)
+                it.remove();
+            if (sw.size > sw.maxSize)
+                it.remove();
+        }
+        
+        posBuf.rewind();
+        sBuf.rewind();
+   
+        GL20.glUniform2(sShockPos, posBuf);
+        GL20.glUniform1(sShockSize, sBuf);
+        
+        renderFBO(FBOTemp); //ja piiretään Scene shadereitten kera
+        
+        GL20.glUseProgram(0); //shaderit mäkeen, ei shadereita enään kiitos
+
         GL11.glEnable(GL11.GL_ALPHA_TEST);
         GL11.glDisable(GL11.GL_BLEND);
     }
@@ -1062,8 +825,30 @@ public class Graphics
         
         //piirretään
         renderRenderables(renderableList);
+        GL11.glTranslatef(0,0,0.7f);
         
-        GL11.glColor3f(1.0f,1.0f,1.0f);
+        ImageData img = getTexture("default").getBaseImage();
+        
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D,img.getGLName());
+        GL11.glBegin(GL11.GL_QUADS);
+        
+        GL11.glTexCoord2f(0,0);
+        GL11.glVertex2f(0, 0);
+        
+        
+        GL11.glTexCoord2f(0, 600/img.getHeight());
+        GL11.glVertex2f(0, 600);
+        
+        GL11.glTexCoord2f(800/img.getWidth(),600/img.getHeight());
+        GL11.glVertex2f(800, 600);
+        
+        GL11.glTexCoord2f(800/img.getWidth(),0);
+        GL11.glVertex2f(800, 0);
+        
+        GL11.glEnd();
+        
+        GL11.glColor4f(1.0f,1.0f,1.0f,1.0f);
+        
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         
         GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
@@ -1085,8 +870,8 @@ public class Graphics
             if (enableMSAA) //jos antialising oli päällä, enään ei ole
               GL11.glDisable(GL13.GL_MULTISAMPLE);
 
-            if (enableShaders) //piirretään cinematic bloom, jos asetukset on kohdillaan
-                renderBlur();
+            if (enableShaders)
+                renderShocks();
             else
             {
                 //jos joku on ottanut cinematic bloomin pois
@@ -1119,6 +904,8 @@ public class Graphics
             */
             
         }
+        
+        GL11.glEnable(GL11.GL_ALPHA_TEST);
         boolean fboWasEnabled= enableFBO;
         enableFBO = false;
         
@@ -1139,6 +926,18 @@ public class Graphics
     {
         return textureMap.get(tex);
     }
+    
+    public static void explode(Vector2f pos, float power)
+    {
+        if (shaderShockArray.size() >= shaderShockMax-1)
+            return;
+        ShockWaveData sw = new ShockWaveData();
+        sw.pos = pos;
+        sw.size = 0;
+        sw.maxSize = 180;
+        sw.vel = 5;
+        shaderShockArray.add(sw);
+    }
 
     /** Palauttaa onko glow päällä
      *
@@ -1154,8 +953,9 @@ public class Graphics
 
     private static void loadData()
     {
-        generateTexture("default",loadImageData("./data/tekstuuri.png",true),loadImageData("./data/tekstuuriglow.png",true));
+        generateTexture("default",loadImageData("./data/tekstuuri.png",true));
         generateTexture("explosion1",loadImageData("./data/fire/explosion.png",false));
+        generateTexture("explosiondecal",loadImageData("./data/fire/explosiondecal.png",false));
         
         Animation anim = new Animation("fieryFlames");
         anim.addFrame(generateSelfGlowingTexture("fire1",loadImageData("./data/fire/f1.png",false)));

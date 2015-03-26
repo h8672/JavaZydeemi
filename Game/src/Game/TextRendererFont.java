@@ -154,7 +154,7 @@ public class TextRendererFont
                 GL11.glTranslatef(curX+offx,curY+offy,0.0f);
                 GL11.glScalef(size,size,1.0f);
                 
-                Graphics.bindAndPrintTexture(tex.getBaseImage());
+                Drawing.bindAndPrintTexture(tex.getBaseImage());
                 curX += tex.getBaseImage().getWidth()*size;
             }
             

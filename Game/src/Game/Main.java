@@ -44,7 +44,7 @@ public class Main {
         return randomizer.nextFloat();
     }
 
-    public static int getTime() {
+    public static float getTime() {
         return time;
     }
 
@@ -114,8 +114,8 @@ public class Main {
             //    System.out.println("Se on!");
             //}
             if (Mouse.isButtonDown(0))
-                
-                ParticleEffects.explode(new Vector2f(Mouse.getX(),600-Mouse.getY()));
+                if (getTime()%8 > 6)
+                 ParticleEffects.explode(new Vector2f(Mouse.getX(),600-Mouse.getY()));
             if (Keyboard.isKeyDown(KEY_A))
                 Graphics.setShadersEnabled(false);
             if (Keyboard.isKeyDown(KEY_Z))
@@ -132,7 +132,7 @@ public class Main {
             
             Display.update();
             Display.sync(60);  //maksimissaan 60 frames per second
-            time += 1.0;
+            time += 1;
         }
     }
     

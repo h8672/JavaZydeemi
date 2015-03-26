@@ -33,7 +33,7 @@ void main()
 		
 		vec4 col = texture2D(sceneTex,tex2c);
 		
-		float mult = pow((samples-abs(trueI))/samples,power);
+		float mult = (samples-abs(trueI))/samples;
 	
 		col = col*mult;
 		
