@@ -78,13 +78,14 @@ public class Drawing
      * @param rot kulma asteina
      * @param scale skaala x ja y suunnissa, 1.0f on normaalikoko
      */
-    public static void drawSpriteCenteredAdditive(Texture tex, Vector2f pos, float rot, Vector2f scale)
+    public static void drawSpriteCenteredAdditive(Texture tex, Vector2f pos, float rot, Vector2f scale,float color[])
     {
         GL11.glPushMatrix();
         GL11.glTranslatef(pos.x,pos.y,0.0f);
         GL11.glRotatef(rot,0,0,1);
         GL11.glScalef(scale.x,scale.y,0.0f);
         
+        GL11.glColor4f(color[0],color[1],color[2],color[3]);
         GL11.glDisable(GL11.GL_ALPHA_TEST);
         GL11.glDisable(GL11.GL_DEPTH_TEST);
         GL11.glEnable(GL11.GL_BLEND); 
@@ -95,6 +96,7 @@ public class Drawing
         GL11.glEnable(GL11.GL_DEPTH_TEST);
         GL11.glDisable(GL11.GL_BLEND);
         
+        GL11.glColor4f(1.0f,1.0f,1.0f,1.0f);
         GL11.glEnable(GL11.GL_ALPHA_TEST);
         GL11.glPopMatrix();
     }
@@ -106,14 +108,13 @@ public class Drawing
      * @param rot kulma asteina
      * @param scale skaala x ja y suunnissa, 1.0f on normaalikoko
      */
-    public static void drawSpriteCenteredAlpha(Texture tex, Vector2f pos, float rot, Vector2f scale, float alpha)
+    public static void drawSpriteCentered(Texture tex, Vector2f pos, float rot, Vector2f scale,float color[])
     {
         GL11.glPushMatrix();
         GL11.glTranslatef(pos.x,pos.y,0.0f);
         GL11.glRotatef(rot,0,0,1);
         GL11.glScalef(scale.x,scale.y,0.0f);
-        
-        GL11.glColor4f(1.0f,1.0f,1.0f,alpha);
+        GL11.glColor4f(color[0],color[1],color[2],color[3]);
         
         
         GL11.glEnable(GL11.GL_BLEND); 

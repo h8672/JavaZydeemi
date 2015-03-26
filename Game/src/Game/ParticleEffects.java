@@ -20,11 +20,12 @@ public class ParticleEffects
      */
     public static void explode(Vector2f pos)
     {
-        for (int i = 0; i < 15; i++)
+        for (int i = 0; i < 25; i++)
         {
             FireParticle part = new FireParticle();
             Vector2f p = new Vector2f(pos.x+10*Main.randomFloat()-5,pos.y+10*Main.randomFloat()-5);
             part.setPos(p);
+            
         }
 
         ExplosionParticle part = new ExplosionParticle(0.6f);

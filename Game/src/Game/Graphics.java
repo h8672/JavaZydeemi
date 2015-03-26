@@ -6,10 +6,6 @@
 package Game;
 import org.lwjgl.opengl.*;
 import org.lwjgl.util.vector.Vector2f;
-import de.matthiasmann.twl.utils.PNGDecoder;
-import de.matthiasmann.twl.utils.PNGDecoder.Format;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.charset.StandardCharsets;
@@ -958,18 +954,18 @@ public class Graphics
         generateTexture("explosiondecal",loadImageData("./data/fire/explosiondecal.png",false));
         
         Animation anim = new Animation("fieryFlames");
-        anim.addFrame(generateSelfGlowingTexture("fire1",loadImageData("./data/fire/f1.png",false)));
-        anim.addFrame(generateSelfGlowingTexture("fire2",loadImageData("./data/fire/f2.png",false)));
-        anim.addFrame(generateSelfGlowingTexture("fire3",loadImageData("./data/fire/f3.png",false)));
-        anim.addFrame(generateSelfGlowingTexture("fire4",loadImageData("./data/fire/f4.png",false)));
+        anim.addFrame(generateTexture("fire1",loadImageData("./data/fire/f1.png",false)));
+        anim.addFrame(generateTexture("fire2",loadImageData("./data/fire/f2.png",false)));
+        anim.addFrame(generateTexture("fire3",loadImageData("./data/fire/f3.png",false)));
+        anim.addFrame(generateTexture("fire4",loadImageData("./data/fire/f4.png",false)));
         anim.setRandomized(true);
         
         animationMap.put(anim.getName(),anim);
         
         anim = new Animation("flameOut");
-        anim.addFrame(generateSelfGlowingTexture("fireout1",loadImageData("./data/fire/fo1.png",false)));
-        anim.addFrame(generateSelfGlowingTexture("fireout2",loadImageData("./data/fire/fo2.png",false)));
-        anim.addFrame(generateSelfGlowingTexture("fireout3",loadImageData("./data/fire/fo3.png",false)));
+        anim.addFrame(generateTexture("fireout1",loadImageData("./data/fire/fo1.png",false)));
+        anim.addFrame(generateTexture("fireout2",loadImageData("./data/fire/fo2.png",false)));
+        anim.addFrame(generateTexture("fireout3",loadImageData("./data/fire/fo3.png",false)));
         
         animationMap.put(anim.getName(),anim);
     }

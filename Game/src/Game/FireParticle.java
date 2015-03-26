@@ -15,9 +15,29 @@ public class FireParticle extends ParticleFX
 {
     private Vector2f pos;
     private Vector2f vel;
-    private Vector2f scale;
-    float rotation = 0;
 
+    
+    private Vector2f scale;
+    private float rotation = 0;
+    private int maxTimer;
+    
+    
+    public Vector2f getVel() {
+        return vel;
+    }
+
+    public void setVel(Vector2f vel) {
+        this.vel = vel;
+    }
+    
+    public Vector2f getScale() {
+        return scale;
+    }
+
+    public void setScale(Vector2f scale) {
+        this.scale = scale;
+    }
+    
     /** Palauttaa sijainnin
      *
      * @return
@@ -35,7 +55,7 @@ public class FireParticle extends ParticleFX
     }
     
     private Animator anim;
-    int timer;
+    private int timer;
 
     /** FireParticle constructor
      * <p>
@@ -48,11 +68,14 @@ public class FireParticle extends ParticleFX
     {
         vel = new Vector2f();
         pos = new Vector2f();
-        scale = new Vector2f(1,1);
+        
+        float fscale = 1.7f-Main.randomFloat()*1.4f ;
+        scale = new Vector2f(fscale,fscale);
         anim = new Animator(Graphics.getAnimation("fieryFlames"));
         Graphics.registerRenderable(this,Graphics.IntermediateLayer);
-        timer = Math.abs(Main.randomInt())%16+16;
+        timer = Math.abs(Main.randomInt())%44+4;
         rotation = Main.randomFloat()*360;
+        maxTimer = timer;
     }
 
     @Override
@@ -71,8 +94,22 @@ public class FireParticle extends ParticleFX
         
         Texture tex = anim.getTexture();
         
+        float smokeMul = (float)timer/maxTimer;
+        if (maxTimer < 20)
+            smokeMul += ((20-maxTimer)/20);
+        if (smokeMul > 1)
+            smokeMul = 1.0f;
+        if (smokeMul < 0.0)
+            smokeMul = 0.0f;
+        
+        float dSmoked = smokeMul*smokeMul;
+        float[] color = new float[]{1.0f*smokeMul,1.0f*dSmoked,1.0f*dSmoked,1.0f - (0.5f*smokeMul)};
+        
+        
        
-        Drawing.drawSpriteCenteredAdditive(tex, pos,rotation,scale);
+        Drawing.drawSpriteCenteredAdditive(tex, pos,rotation,scale, color);
+        color[3] = 0.5f-smokeMul/2;
+        Drawing.drawSpriteCentered(tex, pos,rotation,scale, color);
         
         anim.advance();
         timer--;
@@ -82,15 +119,18 @@ public class FireParticle extends ParticleFX
             
         }
         
+        float velDif = 0.6f;
+        vel.x += (Main.randomFloat()-0.5)*velDif;
+        vel.y += (Main.randomFloat()-0.5)*velDif;
         
-        vel.x += Main.randomFloat()-0.5;
-        vel.y += Main.randomFloat()-0.5;
         
-        vel.x = Math.max(vel.x,-1);
-        vel.x = Math.min(vel.x,1);
+        float maxVel = 1.0f;
+        Vector2f d = new Vector2f();
+        vel.normalise(d);
         
-        vel.y = Math.max(vel.y,-1);
-        vel.y = Math.min(vel.y,1);
+        float mult = vel.length()*0.94f;
+        vel.x = d.x*mult;
+        vel.y = d.y*mult;
         
         pos.x += vel.x;
         pos.y += vel.y;

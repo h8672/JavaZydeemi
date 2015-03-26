@@ -15,8 +15,8 @@ void main()
 		float dist = distance(texCoord, pos);
 		float size = shockSize[i];
 		float maxSize = 180;
-		float power = 60;
-		float exp = 0.5;
+		float power = 80;
+		float exp = 0.22;
 		float displace = -10*pow(((maxSize-size)/maxSize),2);
 		
 		

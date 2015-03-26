@@ -114,8 +114,19 @@ public class Main {
             //    System.out.println("Se on!");
             //}
             if (Mouse.isButtonDown(0))
-                if (getTime()%8 > 6)
+            {
+                if (getTime()%80 > 78)
                  ParticleEffects.explode(new Vector2f(Mouse.getX(),600-Mouse.getY()));
+                
+                for (int i = 0; i < 5; i++)
+                {
+                FireParticle part = new FireParticle();
+                Vector2f p = new Vector2f(Mouse.getX(),600-Mouse.getY());
+                part.setPos(p);
+                part.setVel(new Vector2f(0,0));
+                }
+            }
+            
             if (Keyboard.isKeyDown(KEY_A))
                 Graphics.setShadersEnabled(false);
             if (Keyboard.isKeyDown(KEY_Z))

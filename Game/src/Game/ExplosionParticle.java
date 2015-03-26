@@ -19,6 +19,13 @@ public class ExplosionParticle extends ParticleFX
     float rotation = 0;
     int timer =1;
 
+    public Vector2f getScale() {
+        return scale;
+    }
+
+    public void setScale(Vector2f scale) {
+        this.scale = scale;
+    }
     /**Palauttaa sijainnin
      *
      * @return
@@ -65,7 +72,7 @@ public class ExplosionParticle extends ParticleFX
     @Override
     public void render()
     {
-        Drawing.drawSpriteCenteredAdditive(tex, pos,rotation,scale);
+        Drawing.drawSpriteCenteredAdditive(tex, pos,rotation,scale, new float[]{1.0f,1.0f,1.0f,0.5f});
         if (timer == 0)
         Graphics.removeRenderable(this);
         timer--;
