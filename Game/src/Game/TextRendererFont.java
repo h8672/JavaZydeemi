@@ -47,7 +47,7 @@ public class TextRendererFont
     }
     
     
-    private TreeMap<Character,Texture> glyphMap;
+    private TreeMap<Character,TextureData> glyphMap;
     TextRendererFont()
     {
         glyphMap = new TreeMap<>();
@@ -73,22 +73,22 @@ public class TextRendererFont
                     String filename = file.getFileName().toString();
                     if (filename.contains(".png"))
                     {
-                        String firstPart = filename.split("\\.")[0];
+                        filename = filename.split("\\.")[0];
                         char glyph = 0;
-                        if (firstPart.length() == 1)
+                        if (filename.length() == 1)
                         {
                             glyph = filename.charAt(0);
                         }
                         else
                         {
-                            if (filenameToGlyphMap.containsKey(firstPart))
-                                glyph = filenameToGlyphMap.get(firstPart);
+                            if (filenameToGlyphMap.containsKey(filename))
+                                glyph = filenameToGlyphMap.get(filename);
                             else
                                 return;
                         }
 
-                        Texture t = Graphics.loadTexture(file.toString(),firstPart,false);
-                        if (t.isLoaded())
+                        TextureData t = Graphics.loadTexture(file.toString(),false);
+                        if (t.loaded)
                         {
                             glyphMap.put(glyph, t);
                         }
@@ -149,13 +149,13 @@ public class TextRendererFont
                     GL11.glColor3f(color[0],color[1],color[2]);
                 }
 
-                Texture tex = glyphMap.get(c);
+                TextureData tex = glyphMap.get(c);
                 
                 GL11.glTranslatef(curX+offx,curY+offy,0.0f);
                 GL11.glScalef(size,size,1.0f);
                 
-                Drawing.bindAndPrintTexture(tex.getBaseImage());
-                curX += tex.getBaseImage().getWidth()*size;
+                Graphics.bindAndPrintTexture(tex);
+                curX += tex.width*size;
             }
             
             curX += spacing*size;
@@ -166,7 +166,13 @@ public class TextRendererFont
     }
     
     
-    
+    /** Piirtää tekstiä laajennetuilla parametreilla
+     *
+     * @param str piirrettävä teksti
+     * @param pos sijainti
+     * @param size tekstin koko, 1.0f on normaali, 0.5f puolet, 2.0f kaksinkertainen
+     * @param color tekstin väri taulukkona jossa 3 (RGB) tai 4 (RGBA) floattia
+     */
     
     class RenderTextNormal extends RenderTextCharacterHandler
     {
@@ -189,13 +195,6 @@ public class TextRendererFont
         }
     }
     
-    /** Piirtää tekstiä laajennetuilla parametreilla
-     *
-     * @param str piirrettävä teksti
-     * @param pos sijainti
-     * @param size tekstin koko, 1.0f on normaali, 0.5f puolet, 2.0f kaksinkertainen
-     * @param color tekstin väri taulukkona jossa 3 (RGB) tai 4 (RGBA) floattia
-     */
     public void renderTextExt(String str, Vector2f pos, float size, float[] color)
     {
         
