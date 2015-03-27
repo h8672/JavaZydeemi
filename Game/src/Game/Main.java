@@ -52,7 +52,7 @@ public class Main {
         init();
         menu();
         gameLoop();
-        
+        cleanUp();
     }
     
     private static void menu(){
@@ -115,7 +115,7 @@ public class Main {
             //}
             if (Mouse.isButtonDown(0))
             {
-                if (getTime()%80 > 78)
+                if (getTime()%8 > 0)
                  ParticleEffects.explode(new Vector2f(Mouse.getX(),600-Mouse.getY()));
                 
                 for (int i = 0; i < 5; i++)
@@ -148,6 +148,7 @@ public class Main {
     }
     
     private static void cleanUp(){
+        Graphics.deinit();
         Display.destroy();
         //input.destroy();
         Keyboard.destroy();

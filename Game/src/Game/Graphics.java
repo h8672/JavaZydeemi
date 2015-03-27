@@ -407,6 +407,32 @@ public class Graphics
         return new FBOTexPair(fbo,tex);
     }
     
+    public static void deinit()
+    {
+        for (ImageData d : imageDataArray)
+        {
+            GL11.glDeleteTextures(d.getGLName());
+        }
+        imageDataArray.clear();
+        textureMap.clear();
+        
+        GL11.glDeleteTextures(FBOSceneTex);
+        GL11.glDeleteTextures(FBOTempTex);
+        GL11.glDeleteTextures(FBOTemp2Tex);
+        
+        GL30.glDeleteFramebuffers(FBOScene);
+        GL30.glDeleteFramebuffers(FBOTemp);
+        GL30.glDeleteFramebuffers(FBOTemp2);
+        GL30.glDeleteRenderbuffers(RBODepth);
+        
+        GL20.glDeleteProgram(shaderShockProgram);
+        GL20.glDeleteShader(shaderShock);
+        
+            
+        
+        
+    }
+    
     /**  käynnistää openGL jutut
      *
      * @param WindowW window height
@@ -514,19 +540,13 @@ public class Graphics
             //kokeillaan ladata shaderit
             try {  
                 
-                shaderDisplacer = compileShader("./data/shaders/displace.frag",GL20.GL_FRAGMENT_SHADER);
-                shaderVertexDefault = compileShader("./data/shaders/def.vert",GL20.GL_VERTEX_SHADER);
                 shaderShock = compileShader("./data/shaders/shock.frag",GL20.GL_FRAGMENT_SHADER);
                 
                 
                 //tehdään shader ohjelmat
-                shaderProgram = GL20.glCreateProgram();
                 shaderShockProgram = GL20.glCreateProgram();
 
                 //ja linkitetään asiat niihin
-                GL20.glAttachShader(shaderProgram,shaderVertexDefault);
-                GL20.glAttachShader(shaderProgram,shaderDisplacer);
-                GL20.glLinkProgram(shaderProgram);
 
                 GL20.glAttachShader(shaderShockProgram,shaderShock);
                 GL20.glLinkProgram(shaderShockProgram);
