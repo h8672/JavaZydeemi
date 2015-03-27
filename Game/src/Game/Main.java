@@ -5,6 +5,8 @@
  */
 package Game;
 
+import Game.graphics.Graphics;
+import Game.menu.Menu;
 import java.util.Random;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.*;

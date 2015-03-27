@@ -5,8 +5,8 @@
  */
 package Game.state;
 
-import Game.Graphics;
-import Game.Renderable;
+import Game.graphics.Graphics;
+import Game.graphics.Renderable;
 
 /**
  *

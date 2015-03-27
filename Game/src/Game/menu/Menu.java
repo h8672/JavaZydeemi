@@ -3,8 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Game;
-
+package Game.menu;
+import Game.Main;
+import Game.graphics.Renderable;
+import Game.graphics.Graphics;
 import java.util.ArrayList;
 import org.lwjgl.util.vector.Vector2f;
 
