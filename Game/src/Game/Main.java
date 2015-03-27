@@ -33,7 +33,6 @@ public class Main {
      * @param args the command line arguments
      */
     private static Random randomizer;
-    private static Menu menu;
     private static int time;
     
     public static int randomInt() {
@@ -51,30 +50,46 @@ public class Main {
     public static void main(String[] args) {
         init();
         menu();
-        gameLoop();
-        
     }
     
     private static void menu(){
-        menu = new Menu("otsikko");
-        /*while(true){
+        // Menun alustus
+        Menu menu = new Menu("Woot gaming!");
+        // Menun vaihtoehtojen lisäys
+        menu.addChoice("Aloita peli");
+        menu.addChoice("Lopeta");
+        // Ikkunan otsikon muutos
+        Display.setTitle("Main menu");
+        
+        while(menu.loop()){
+            render();
             if(Keyboard.isKeyDown(KEY_UP)){
                 menu.moveUP();
             }
-            if(Keyboard.isKeyDown(KEY_DOWN)){
+            else if(Keyboard.isKeyDown(KEY_DOWN)){
                 menu.moveDOWN();
             }
-            if(Keyboard.isKeyDown(KEY_RETURN)){
+            //Valinta ehto
+            else if(Keyboard.isKeyDown(KEY_RETURN)){
                 switch(menu.chosenone()){
                     case 1:
-                        System.out.println("Ensimmäinen valinta");
+                        gameLoop();
+                        break;
+                    case 2:
                         break;
                     default:
                         break;
                 }
+                menu.close();
             }
-            
-        }*/
+            // Sulkemis ehto
+            else if(Keyboard.isKeyDown(
+                    Keyboard.KEY_ESCAPE) || Display.isCloseRequested()
+                    ) menu.close();
+            else;
+            time++;
+        }
+        Graphics.removeRenderable(menu);
     }
     
     private static void init(){
@@ -82,7 +97,6 @@ public class Main {
         
         try {
             Display.setDisplayMode(new DisplayMode(800,600));
-            Display.setTitle("Hieno!");
             Display.create();
             Display.setVSyncEnabled(true);
             Graphics.init(800,600); //ikkunan koko oltava sama
@@ -110,31 +124,21 @@ public class Main {
     
     private static void gameLoop(){
         while(!Display.isCloseRequested()){
-            //if(input.isKeyDown(59)){
-            //    System.out.println("Se on!");
-            //}
-            if (Mouse.isButtonDown(0))
-                if (getTime()%8 > 6)
-                 ParticleEffects.explode(new Vector2f(Mouse.getX(),600-Mouse.getY()));
-            if (Keyboard.isKeyDown(KEY_A))
-                Graphics.setShadersEnabled(false);
-            if (Keyboard.isKeyDown(KEY_Z))
-                Graphics.setShadersEnabled(true);
-            
-            if (Keyboard.isKeyDown(KEY_S))
-                Graphics.setMSAAEnabled(false);
-            if (Keyboard.isKeyDown(KEY_X))
-                Graphics.setMSAAEnabled(true);
-            
-            Graphics.render();
             
             
             
-            Display.update();
-            Display.sync(60);  //maksimissaan 60 frames per second
-            time += 1;
+            render();
+            time++;
         }
     }
+    
+    private static void render(){
+            Graphics.render();
+            Display.update();
+            Display.sync(60);
+    }
+    
+    
     
     private static void cleanUp(){
         Display.destroy();
