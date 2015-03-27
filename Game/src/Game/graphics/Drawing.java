@@ -30,6 +30,66 @@ public class Drawing
         GL11.glPopMatrix();
     }
     
+    /** Piirtää spriten määrätyllä koolla
+     * 
+     * @param tex TextureData
+     * @param pos sijainti
+     * @param size koko pikseleinä
+     */
+    public static void drawSpriteSized(Texture tex, Vector2f pos, Vector2f size)
+    {
+        GL11.glPushMatrix();
+        GL11.glTranslatef(pos.x,pos.y,0.0f);
+               
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D,tex.getBaseImage().getGLName());
+        
+        GL11.glScalef(size.x,size.y,1.0f);
+        
+        GL11.glBegin(GL11.GL_QUADS);
+        
+        GL11.glTexCoord2f(0,0);
+        GL11.glVertex2f(0,0);
+        
+        GL11.glTexCoord2f(1,0);
+        GL11.glVertex2f(1f,0f);
+        
+        GL11.glTexCoord2f(1,1);
+        GL11.glVertex2f(1f,1f);
+        
+        GL11.glTexCoord2f(0,1);
+        GL11.glVertex2f(0f,1f);
+
+        GL11.glEnd();
+        
+
+        GL11.glPopMatrix();
+    }
+    
+    public static void drawThing(Vector2f pos, float size)
+    {
+        GL11.glPushMatrix();
+        
+        GL11.glTranslatef(pos.x,pos.y,0.0f);
+        
+        GL11.glScalef(size,size,1.0f);
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glColor4f(1.0f,0.0f,1.0f,1.0f);
+        GL11.glBegin(GL11.GL_QUADS);
+        
+        
+        GL11.glVertex2f(-1,-1);
+        
+        GL11.glVertex2f(1,-1);
+        
+        GL11.glVertex2f(1,1);
+        
+        GL11.glVertex2f(-1,1);
+
+        GL11.glEnd();
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        GL11.glColor4f(1.0f,1.0f,1.0f,1.0f);
+        GL11.glPopMatrix();
+    }
     
 
     /** Piirtää keskitetyn spriten

@@ -580,7 +580,7 @@ public class Graphics
         imageDataArray = new ArrayList<>();
         textureMap = new HashMap<>();
         animationMap = new HashMap<>();
-        camera = new Vector2f();
+        camera = new Vector2f(0,0);
         
         //fonttien piirto kuntoon
         TextRendererFont.init();
@@ -841,29 +841,7 @@ public class Graphics
         
         //piirretään
         renderRenderables(renderableList);
-        GL11.glTranslatef(0,0,0.7f);
         
-        ImageData img = getTexture("default").getBaseImage();
-        
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D,img.getGLName());
-        GL11.glBegin(GL11.GL_QUADS);
-        
-        GL11.glTexCoord2f(0,0);
-        GL11.glVertex2f(0, 0);
-        
-        
-        GL11.glTexCoord2f(0, 600/img.getHeight());
-        GL11.glVertex2f(0, 600);
-        
-        GL11.glTexCoord2f(800/img.getWidth(),600/img.getHeight());
-        GL11.glVertex2f(800, 600);
-        
-        GL11.glTexCoord2f(800/img.getWidth(),0);
-        GL11.glVertex2f(800, 0);
-        
-        GL11.glEnd();
-        
-        GL11.glColor4f(1.0f,1.0f,1.0f,1.0f);
         
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         
@@ -930,15 +908,16 @@ public class Graphics
 
         
         getFont().renderTextCool("RenderableCount: "+Integer.toString(getRenderableCount()),new Vector2f(32,32),2.0f);
+        GL11.glDisable(GL11.GL_ALPHA_TEST);
         
     }
 
-    static Animation getAnimation(String  anim)
+    public static Animation getAnimation(String  anim)
     {
         return animationMap.get(anim);
     }
     
-    static Texture getTexture(String tex)
+    public static Texture getTexture(String tex)
     {
         return textureMap.get(tex);
     }

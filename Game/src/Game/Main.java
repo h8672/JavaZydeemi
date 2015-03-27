@@ -5,8 +5,12 @@
  */
 package Game;
 
+import Game.graphics.Drawing;
 import Game.graphics.Graphics;
 import Game.menu.Menu;
+import Game.state.CollisionDetection;
+import Game.state.CollisionDetectionResult;
+import Game.state.Map;
 import java.util.Random;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.*;
@@ -49,8 +53,10 @@ public class Main {
         return time;
     }
 
+    private static Map map;
     public static void main(String[] args) {
         init();
+        map = new Map(15,10);
         menu();
     }
     
@@ -97,6 +103,7 @@ public class Main {
     private static void init(){
         randomizer = new Random();
         
+        
         try {
             Display.setDisplayMode(new DisplayMode(800,600));
             Display.create();
@@ -108,6 +115,7 @@ public class Main {
             System.out.println("Test");
         }
         Input(); //lataa ohjaimet
+        
     }
     
     private static void Input(){
@@ -134,10 +142,11 @@ public class Main {
         }
     }
     
-    private static void render(){
-            Graphics.render();
-            Display.update();
-            Display.sync(60);
+    private static void render()
+    {
+        Graphics.render();
+        Display.update();
+        Display.sync(60);
     }
     
     
