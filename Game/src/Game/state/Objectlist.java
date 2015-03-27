@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Game;
+package Game.state;
 
 import java.util.ArrayList;
 
@@ -11,15 +11,12 @@ import java.util.ArrayList;
  *
  * @author Juha-Matti
  */
-public class Valikko {
-    private int x;
-    private ArrayList<String> valinnat = new ArrayList();
+public class Objectlist {
+    ArrayList<GameObject> map;
+    ArrayList<GameObject> actors;
     
-    public Valikko(){
-        this.x = 0;
-    }
-    
-    public void addValinta(String valinta){
-        this.valinnat.add(valinta);
+    public Objectlist(){
+        map = new ArrayList();
+        actors = new ArrayList();
     }
 }
