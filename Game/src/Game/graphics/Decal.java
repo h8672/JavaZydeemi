@@ -17,10 +17,18 @@ public class Decal extends ParticleFX
     private Vector2f pos;
     private Vector2f scale;
 
+    /** Palauttaa skaalauksen
+     *
+     * @return skaalaus
+     */
     public Vector2f getScale() {
         return scale;
     }
 
+    /** Asettaa skaalauksen
+     *
+     * @param scale asetettava skaalaus
+     */
     public void setScale(Vector2f scale) {
         this.scale = scale;
     }
@@ -28,7 +36,7 @@ public class Decal extends ParticleFX
     float rotation = 0;
     /** Palauttaa sijainnin
      *
-     * @return
+     * @return sijainti
      */
     public Vector2f getPos() {
         return pos;
@@ -42,6 +50,10 @@ public class Decal extends ParticleFX
         this.pos = pos;
     }
     
+    /** Decal luokan konstruktori. Luo uuden Decal olion tietyllä tekstuurilla.
+     *
+     * @param tex tekstuuri
+     */
     public Decal (Texture tex)
     {
         pos = new Vector2f();

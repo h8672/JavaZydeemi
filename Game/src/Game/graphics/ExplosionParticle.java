@@ -20,10 +20,18 @@ public class ExplosionParticle extends ParticleFX
     float rotation = 0;
     int timer =1;
 
+    /** Palauttaa skaalauksen
+     *
+     * @return skaalaus
+     */
     public Vector2f getScale() {
         return scale;
     }
 
+    /** Asettaa skaalauksen
+     *
+     * @param scale skaalaus
+     */
     public void setScale(Vector2f scale) {
         this.scale = scale;
     }
@@ -49,6 +57,7 @@ public class ExplosionParticle extends ParticleFX
      * <p>
      * lisää partikkelin Graphics.IntermediateLayer Renderable listaan
      *
+     * @param size partikkelin koko
      */
     public ExplosionParticle (float size)
     {

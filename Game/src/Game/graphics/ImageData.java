@@ -59,14 +59,6 @@ public class ImageData
     
     /**
      *
-     */
-    public ImageData()
-    {
-        
-    }
-    
-    /**
-     *
      * @param file
      * @param wrap
      */

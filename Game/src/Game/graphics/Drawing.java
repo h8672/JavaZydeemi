@@ -30,6 +30,71 @@ public class Drawing
         GL11.glPopMatrix();
     }
     
+    /** Piirtää spriten määrätyllä koolla
+     * 
+     * @param tex TextureData
+     * @param pos sijainti
+     * @param size koko pikseleinä
+     */
+    public static void drawSpriteSized(Texture tex, Vector2f pos, Vector2f size)
+    {
+        GL11.glPushMatrix();
+        GL11.glTranslatef(pos.x,pos.y,0.0f);
+               
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D,tex.getBaseImage().getGLName());
+        
+        GL11.glScalef(size.x,size.y,1.0f);
+        
+        GL11.glBegin(GL11.GL_QUADS);
+        
+        GL11.glTexCoord2f(0,0);
+        GL11.glVertex2f(0,0);
+        
+        GL11.glTexCoord2f(1,0);
+        GL11.glVertex2f(1f,0f);
+        
+        GL11.glTexCoord2f(1,1);
+        GL11.glVertex2f(1f,1f);
+        
+        GL11.glTexCoord2f(0,1);
+        GL11.glVertex2f(0f,1f);
+
+        GL11.glEnd();
+        
+
+        GL11.glPopMatrix();
+    }
+    
+    /** Piirtää jutun
+     *
+     * @param pos
+     * @param size
+     */
+    public static void drawThing(Vector2f pos, float size)
+    {
+        GL11.glPushMatrix();
+        
+        GL11.glTranslatef(pos.x,pos.y,0.0f);
+        
+        GL11.glScalef(size,size,1.0f);
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glColor4f(1.0f,0.0f,1.0f,1.0f);
+        GL11.glBegin(GL11.GL_QUADS);
+        
+        
+        GL11.glVertex2f(-1,-1);
+        
+        GL11.glVertex2f(1,-1);
+        
+        GL11.glVertex2f(1,1);
+        
+        GL11.glVertex2f(-1,1);
+
+        GL11.glEnd();
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        GL11.glColor4f(1.0f,1.0f,1.0f,1.0f);
+        GL11.glPopMatrix();
+    }
     
 
     /** Piirtää keskitetyn spriten
@@ -38,13 +103,12 @@ public class Drawing
      * @param pos sijainti
      * @param rot kulma asteina, kasvaa vastapäivään
      * @param scale skaala x ja y suunnissa, 1.0f on normaalikoko
-     * @param glowPow tekstuurin glowmapin kerroin
      */
     public static void drawSpriteCentered(Texture tex, Vector2f pos, float rot, Vector2f scale)
     {
         GL11.glPushMatrix();
         GL11.glTranslatef(pos.x,pos.y,0.0f);
-        GL11.glRotatef(rot,0,0,1);
+        GL11.glRotatef(rot,0,0,-1);
         GL11.glScalef(scale.x,scale.y,0.0f);
 
         bindAndPrintCenteredTexture(tex.getBaseImage());
@@ -63,7 +127,7 @@ public class Drawing
     {
         GL11.glPushMatrix();
         GL11.glTranslatef(pos.x,pos.y,0.0f);
-        GL11.glRotatef(rot,0,0,1);
+        GL11.glRotatef(rot,0,0,-1);
         
 
         bindAndPrintCenteredTexture(tex.getBaseImage());
@@ -77,12 +141,13 @@ public class Drawing
      * @param pos sijainti
      * @param rot kulma asteina
      * @param scale skaala x ja y suunnissa, 1.0f on normaalikoko
+     * @param color väri
      */
     public static void drawSpriteCenteredAdditive(Texture tex, Vector2f pos, float rot, Vector2f scale,float color[])
     {
         GL11.glPushMatrix();
         GL11.glTranslatef(pos.x,pos.y,0.0f);
-        GL11.glRotatef(rot,0,0,1);
+        GL11.glRotatef(rot,0,0,-1);
         GL11.glScalef(scale.x,scale.y,0.0f);
         
         GL11.glColor4f(color[0],color[1],color[2],color[3]);
@@ -107,12 +172,13 @@ public class Drawing
      * @param pos sijainti
      * @param rot kulma asteina
      * @param scale skaala x ja y suunnissa, 1.0f on normaalikoko
+     * @param color väri
      */
     public static void drawSpriteCentered(Texture tex, Vector2f pos, float rot, Vector2f scale,float color[])
     {
         GL11.glPushMatrix();
         GL11.glTranslatef(pos.x,pos.y,0.0f);
-        GL11.glRotatef(rot,0,0,1);
+        GL11.glRotatef(rot,0,0,-1);
         GL11.glScalef(scale.x,scale.y,0.0f);
         GL11.glColor4f(color[0],color[1],color[2],color[3]);
         

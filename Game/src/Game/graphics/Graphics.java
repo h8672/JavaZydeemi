@@ -59,7 +59,7 @@ public class Graphics
     private static int shaderShockProgram;
     private static int shaderShock;
     
-    private final static int shaderShockMax = 10;
+    private final static int shaderShockMax = 32;
     
     private static LinkedList<ShockWaveData> shaderShockArray;
     
@@ -93,8 +93,20 @@ public class Graphics
     private static HashSet<Renderable> menuRenderableList;
     
     private static LinkedList<Renderable> toBeDeletedRenderables;
+
+    /** Renderable layer efekteille
+     *
+     */
     final public static int IntermediateLayer = 1;
+
+    /** Renderable layer käyttöliittymälle
+     *
+     */
     final public static int MenuLayer = 2;
+
+    /** Perus renderable layer 
+     *
+     */
     final public static int BaseLayer = 0;
     
 
@@ -407,6 +419,12 @@ public class Graphics
         return new FBOTexPair(fbo,tex);
     }
     
+    /** Sulkee openGL rajapinnan asetukset.
+     * <p>
+     * Poistaa openGL tekstuurit, frame- ja renderbufferit,
+     * shaderit ja shader ohjelmat. Kutsu vain ohjelman sammutuksen yhteydessä.
+     *
+     */
     public static void deinit()
     {
         for (ImageData d : imageDataArray)
@@ -580,7 +598,7 @@ public class Graphics
         imageDataArray = new ArrayList<>();
         textureMap = new HashMap<>();
         animationMap = new HashMap<>();
-        camera = new Vector2f();
+        camera = new Vector2f(0,0);
         
         //fonttien piirto kuntoon
         TextRendererFont.init();
@@ -838,34 +856,13 @@ public class Graphics
         
         // näyttö/framebuffer tyhjäks
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-        
+        GL11.glEnable(GL11.GL_ALPHA_TEST);
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
         //piirretään
         renderRenderables(renderableList);
-        GL11.glTranslatef(0,0,0.7f);
-        
-        ImageData img = getTexture("default").getBaseImage();
-        
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D,img.getGLName());
-        GL11.glBegin(GL11.GL_QUADS);
-        
-        GL11.glTexCoord2f(0,0);
-        GL11.glVertex2f(0, 0);
         
         
-        GL11.glTexCoord2f(0, 600/img.getHeight());
-        GL11.glVertex2f(0, 600);
         
-        GL11.glTexCoord2f(800/img.getWidth(),600/img.getHeight());
-        GL11.glVertex2f(800, 600);
-        
-        GL11.glTexCoord2f(800/img.getWidth(),0);
-        GL11.glVertex2f(800, 0);
-        
-        GL11.glEnd();
-        
-        GL11.glColor4f(1.0f,1.0f,1.0f,1.0f);
-        
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
         
         GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
         renderRenderables(intermediateRenderableList);
@@ -930,19 +927,57 @@ public class Graphics
 
         
         getFont().renderTextCool("RenderableCount: "+Integer.toString(getRenderableCount()),new Vector2f(32,32),2.0f);
+        GL11.glDisable(GL11.GL_ALPHA_TEST);
         
     }
 
-    static Animation getAnimation(String  anim)
+    /** Palauttaa nimeä vastaavan Animation olion
+     * <p>
+     * Aiheuttaa virheellistä toimintaa mikäli nimi ei ole kelvollinen.
+     *
+     * @param anim Nimi, millä animaatio on ladattu
+     * @return Animation olio, null mikäli nimeä vastaavaa oliota ei löytynyt
+     */
+    public static Animation getAnimation(String  anim)
     {
-        return animationMap.get(anim);
+        try
+        {
+            return animationMap.get(anim);
+        }
+        catch (Exception e)
+        {
+            System.out.println("Couldn't find animation "+anim+" :"+e);
+            return null;
+        }
     }
     
+    /** Palauttaa nimeä vastaavan Tekstuuri olion
+     * <p>
+     * Aiheuttaa virheellistä toimintaa mikäli nimi ei ole kelvollinen.
+     *
+     * @param tex Nimi, millä tekstuuri on ladattu
+     * @return Texture olio, null mikäli nimeä vastaavaa oliota ei löytynyt
+     */
     public static Texture getTexture(String tex)
     {
-        return textureMap.get(tex);
+        try 
+        {
+            if (!textureMap.containsKey(tex))
+                throw new Exception();
+            return textureMap.get(tex);
+        }
+        catch (Exception e)
+        {
+            System.out.println("Couldn't find texture "+tex);
+            return null;
+        }
     }
     
+    /** Luo shokkiaaltoefektin
+     *
+     * @param pos Shokkiaallon keskipiste
+     * @param power Shokkiaallon voima
+     */
     public static void explode(Vector2f pos, float power)
     {
         if (shaderShockArray.size() >= shaderShockMax-1)
@@ -972,6 +1007,7 @@ public class Graphics
         generateTexture("default",loadImageData("./data/tekstuuri.png",true));
         generateTexture("explosion1",loadImageData("./data/fire/explosion.png",false));
         generateTexture("explosiondecal",loadImageData("./data/fire/explosiondecal.png",false));
+        loadTexture("./data/tyyppi.png","tyyppi1",false);
         
         Animation anim = new Animation("fieryFlames");
         anim.addFrame(generateTexture("fire1",loadImageData("./data/fire/f1.png",false)));
@@ -990,19 +1026,37 @@ public class Graphics
         animationMap.put(anim.getName(),anim);
     }
     
+    /** Palauttaa IntermediateLayer'n koon
+     *
+     * @return koko
+     */
     public static int getIntermediateRenderableCount()
     {
         return intermediateRenderableList.size();
     }
     
+    /** Palauttaa MenuLayer'n koon
+     *
+     * @return koko
+     */
     public static int getMenuRenderableCount()
     {
         return menuRenderableList.size();
     }
+
+    /** Palauttaa BaseLayer'n koon
+     *
+     * @return koko
+     */
     public static int getBaseRenderableCount()
     {
         return renderableList.size();
     }
+
+    /** Palauttaa rekisteröityjen Renderablejen määrän
+     *
+     * @return määrä
+     */
     public static int getRenderableCount()
     {
         return getIntermediateRenderableCount()+getMenuRenderableCount()+getBaseRenderableCount();
