@@ -5,18 +5,10 @@
  */
 package Game.state;
 
-import java.util.ArrayList;
-
 /**
  *
  * @author Juha-Matti
  */
-public class Objectlist {
-    ArrayList<GameObject> map;
-    ArrayList<GameObject> actors;
-    
-    public Objectlist(){
-        map = new ArrayList();
-        actors = new ArrayList();
-    }
+public interface Mortality {
+    public void Damaged();
 }

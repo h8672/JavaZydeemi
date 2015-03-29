@@ -5,18 +5,14 @@
  */
 package Game;
 
-import Game.graphics.Drawing;
 import Game.graphics.Graphics;
 import Game.menu.Menu;
-import Game.state.CollisionDetection;
-import Game.state.CollisionDetectionResult;
-import Game.state.Map;
+import Game.state.GameState;
 import java.util.Random;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.*;
 import static org.lwjgl.input.Keyboard.*;
 import org.lwjgl.opengl.*;
-import org.lwjgl.util.vector.Vector2f;
 
 /**
 import java.util.HashSet;
@@ -26,13 +22,6 @@ import java.util.Scanner;
  * @author Juha-Matti
  */
 public class Main {
-    /*
-    private static GameState game;
-    private static Graphics graphics;
-        Vector2f vector = new Vector2f();
-        Vector2f velocity = new Vector2f();
-        vector.translate(velocity.x, velocity.y);
-    */
     //private static Input input;
     
     /**
@@ -53,10 +42,8 @@ public class Main {
         return time;
     }
 
-    private static Map map;
     public static void main(String[] args) {
         init();
-        map = new Map(15,10);
         menu();
     }
     
@@ -103,7 +90,6 @@ public class Main {
     private static void init(){
         randomizer = new Random();
         
-        
         try {
             Display.setDisplayMode(new DisplayMode(800,600));
             Display.create();
@@ -115,7 +101,6 @@ public class Main {
             System.out.println("Test");
         }
         Input(); //lataa ohjaimet
-        
     }
     
     private static void Input(){
@@ -133,20 +118,20 @@ public class Main {
     }
     
     private static void gameLoop(){
+        GameState game = new GameState();
+        
         while(!Display.isCloseRequested()){
             
-            
-            
+            game.update();
             render();
             time++;
         }
     }
     
-    private static void render()
-    {
-        Graphics.render();
-        Display.update();
-        Display.sync(60);
+    private static void render(){
+            Graphics.render();
+            Display.update();
+            Display.sync(60);
     }
     
     
