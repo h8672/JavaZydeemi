@@ -16,7 +16,7 @@ import org.lwjgl.util.vector.Vector2f;
  *
  * @author Juha-Matti
  */
-public class Map  implements Renderable
+public class Map implements Renderable
 {
     private static final int TileWall = 0;
     private static final int TileFloor1 = 1;
@@ -30,10 +30,17 @@ public class Map  implements Renderable
     private int height;
     private static boolean isDataLoaded = false;
     
+    /** Palauttaa kartan ruudun koon
+     *
+     * @return yksittäisen ruudun koko
+     */
     public int getTileSize() {
         return TileSize;
     }
     
+    /** Lataa kartan tarvitsemat tekstuurit
+     *
+     */
     public static void loadMapData()
     {
         textures = new ArrayList<>();
@@ -42,6 +49,13 @@ public class Map  implements Renderable
         textures.add(Graphics.loadTexture("./data/map/tile3.png","mapTile3",true));
         isDataLoaded = true;
     }
+
+    /** Map luokan konstruktori. Luo uuden Map olion tietyllä koolla.
+     * 
+     *
+     * @param width kartan leveys
+     * @param height kartan korkeus
+     */
     public Map(int width, int height)
     {
         if (isDataLoaded == false)
@@ -66,12 +80,24 @@ public class Map  implements Renderable
         }
     }
     
-    
+    /** Palauttaa mikäli sijainnissa oleva karttaruutu on kiinteä seinä
+     *
+     * @param pos sijainti
+     * @return true, mikäli sijainti aiheuttaa törmäyksiä
+     */
     public boolean getTileCollision(Vector2f pos)
     {
         return getTileCollision((int)(pos.x/TileSize),(int)(pos.y/TileSize));
     }
     
+    /** Palauttaa, onko karttaruutu kiinteä seinä
+     * <p>
+     * Koordinaattien yksikköinä karttaruudut.
+     *
+     * @param x karttaruudun x-koordinaatti
+     * @param y karttaruudun y-koordinaatti
+     * @return true, mikäli ruutu aiheuttaa törmäyksiä
+     */
     public boolean getTileCollision(int x, int y)
     {
         try 

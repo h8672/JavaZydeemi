@@ -22,19 +22,34 @@ public class FireParticle extends ParticleFX
     private float rotation = 0;
     private int maxTimer;
     
-    
+    /** Palauttaa nopeuden
+     *
+     * @return nopeus
+     */
     public Vector2f getVel() {
         return vel;
     }
 
+    /** Asettaa nopeuden
+     *
+     * @param vel nopeus
+     */
     public void setVel(Vector2f vel) {
         this.vel = vel;
     }
     
+    /** Palauttaa skaalauksen
+     *
+     * @return skaalaus
+     */
     public Vector2f getScale() {
         return scale;
     }
 
+    /** Asettaa skaalauksen
+     *
+     * @param scale skaalaus
+     */
     public void setScale(Vector2f scale) {
         this.scale = scale;
     }

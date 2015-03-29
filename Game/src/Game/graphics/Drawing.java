@@ -65,6 +65,11 @@ public class Drawing
         GL11.glPopMatrix();
     }
     
+    /** Piirtää jutun
+     *
+     * @param pos
+     * @param size
+     */
     public static void drawThing(Vector2f pos, float size)
     {
         GL11.glPushMatrix();
@@ -98,7 +103,6 @@ public class Drawing
      * @param pos sijainti
      * @param rot kulma asteina, kasvaa vastapäivään
      * @param scale skaala x ja y suunnissa, 1.0f on normaalikoko
-     * @param glowPow tekstuurin glowmapin kerroin
      */
     public static void drawSpriteCentered(Texture tex, Vector2f pos, float rot, Vector2f scale)
     {
@@ -137,6 +141,7 @@ public class Drawing
      * @param pos sijainti
      * @param rot kulma asteina
      * @param scale skaala x ja y suunnissa, 1.0f on normaalikoko
+     * @param color väri
      */
     public static void drawSpriteCenteredAdditive(Texture tex, Vector2f pos, float rot, Vector2f scale,float color[])
     {
@@ -167,6 +172,7 @@ public class Drawing
      * @param pos sijainti
      * @param rot kulma asteina
      * @param scale skaala x ja y suunnissa, 1.0f on normaalikoko
+     * @param color väri
      */
     public static void drawSpriteCentered(Texture tex, Vector2f pos, float rot, Vector2f scale,float color[])
     {

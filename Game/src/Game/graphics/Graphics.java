@@ -59,7 +59,7 @@ public class Graphics
     private static int shaderShockProgram;
     private static int shaderShock;
     
-    private final static int shaderShockMax = 10;
+    private final static int shaderShockMax = 32;
     
     private static LinkedList<ShockWaveData> shaderShockArray;
     
@@ -93,8 +93,20 @@ public class Graphics
     private static HashSet<Renderable> menuRenderableList;
     
     private static LinkedList<Renderable> toBeDeletedRenderables;
+
+    /** Renderable layer efekteille
+     *
+     */
     final public static int IntermediateLayer = 1;
+
+    /** Renderable layer käyttöliittymälle
+     *
+     */
     final public static int MenuLayer = 2;
+
+    /** Perus renderable layer 
+     *
+     */
     final public static int BaseLayer = 0;
     
 
@@ -407,6 +419,12 @@ public class Graphics
         return new FBOTexPair(fbo,tex);
     }
     
+    /** Sulkee openGL rajapinnan asetukset.
+     * <p>
+     * Poistaa openGL tekstuurit, frame- ja renderbufferit,
+     * shaderit ja shader ohjelmat. Kutsu vain ohjelman sammutuksen yhteydessä.
+     *
+     */
     public static void deinit()
     {
         for (ImageData d : imageDataArray)
@@ -912,16 +930,51 @@ public class Graphics
         
     }
 
+    /** Palauttaa nimeä vastaavan Animation olion
+     * <p>
+     * Aiheuttaa virheellistä toimintaa mikäli nimi ei ole kelvollinen.
+     *
+     * @param anim Nimi, millä animaatio on ladattu
+     * @return Animation olio, null mikäli nimeä vastaavaa oliota ei löytynyt
+     */
     public static Animation getAnimation(String  anim)
     {
-        return animationMap.get(anim);
+        try
+        {
+            return animationMap.get(anim);
+        }
+        catch (Exception e)
+        {
+            System.out.println("Couldn't find animation "+anim+" :"+e);
+            return null;
+        }
     }
     
+    /** Palauttaa nimeä vastaavan Tekstuuri olion
+     * <p>
+     * Aiheuttaa virheellistä toimintaa mikäli nimi ei ole kelvollinen.
+     *
+     * @param tex Nimi, millä tekstuuri on ladattu
+     * @return Texture olio, null mikäli nimeä vastaavaa oliota ei löytynyt
+     */
     public static Texture getTexture(String tex)
     {
-        return textureMap.get(tex);
+        try 
+        {
+            return textureMap.get(tex);
+        }
+        catch (Exception e)
+        {
+            System.out.println("Couldn't find texture "+tex+" :"+e);
+            return null;
+        }
     }
     
+    /** Luo shokkiaaltoefektin
+     *
+     * @param pos Shokkiaallon keskipiste
+     * @param power Shokkiaallon voima
+     */
     public static void explode(Vector2f pos, float power)
     {
         if (shaderShockArray.size() >= shaderShockMax-1)
@@ -969,19 +1022,37 @@ public class Graphics
         animationMap.put(anim.getName(),anim);
     }
     
+    /** Palauttaa IntermediateLayer'n koon
+     *
+     * @return koko
+     */
     public static int getIntermediateRenderableCount()
     {
         return intermediateRenderableList.size();
     }
     
+    /** Palauttaa MenuLayer'n koon
+     *
+     * @return koko
+     */
     public static int getMenuRenderableCount()
     {
         return menuRenderableList.size();
     }
+
+    /** Palauttaa BaseLayer'n koon
+     *
+     * @return koko
+     */
     public static int getBaseRenderableCount()
     {
         return renderableList.size();
     }
+
+    /** Palauttaa rekisteröityjen Renderablejen määrän
+     *
+     * @return määrä
+     */
     public static int getRenderableCount()
     {
         return getIntermediateRenderableCount()+getMenuRenderableCount()+getBaseRenderableCount();

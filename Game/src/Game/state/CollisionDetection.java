@@ -14,7 +14,15 @@ import org.lwjgl.util.vector.Vector2f;
 
 public class CollisionDetection
 {
-    public static CollisionDetectionResult checkCircleCollisionWithMap(Vector2f center, float radius, Vector2f velocity, Map map)
+
+    /** Suorittaa törmäyksentarkistuksen ympyrän ja Map olion välillä.
+     *
+     * @param center tarkistettavan ympyrän keskipiste
+     * @param radius ympyrän säde
+     * @param map karttaa, mitä vasten törmäys testataan
+     * @return CollisionDetectionResult, korjausvektori mukaanlukien
+     */
+    public static CollisionDetectionResult checkCircleCollisionWithMap(Vector2f center, float radius, Map map)
     {
         CollisionDetectionResult cdr = new CollisionDetectionResult();
         float mSize = (float)map.getTileSize();
@@ -27,21 +35,20 @@ public class CollisionDetection
         cx = (int)(center.x/mSize);
         cy = (int)(center.y/mSize);
         
-        if (map.getTileCollision(cx,cy))
+        if (map.getTileCollision(cx,cy)) //löytyi törmäys, valitettavasti pallo on seinän sisällä (jostain kumman syystä)
         {
-            cdr.fix = new Vector2f(velocity);
-            cdr.fix.x = -cdr.fix.x;
-            cdr.fix.y = -cdr.fix.y;
+            cdr.fix = new Vector2f(0,0);
             cdr.found = true;
             return cdr;
         }
         
         if (tPos.x > radius && tPos.y > radius)
-            if (tPos.x < mSize-radius && tPos.y < mSize-radius)
+            if (tPos.x < mSize-radius && tPos.y < mSize-radius) //ympyrä on kokonaan ei blokkaavan alueen sisällä
             {
                 cdr.found = false;
                 return cdr;
             }
+        
         int dcx, dcy;
         CollisionDetectionResult clcr;
         Vector2f nc = new Vector2f(center);
@@ -50,9 +57,15 @@ public class CollisionDetection
         float ydist = tPos.y-radius;
         float drad = mSize-radius*2;
         
+        
+        
+        //neliöristikossa ympäröivien ruutujen suhteelliset koordinaatit
         int[] dcxList = new int[]{-1,-1,0,1,1,1,0,-1};
         int[] dcyList = new int[]{0,-1,-1,-1,0,1,1,1};
         boolean found = false;
+        
+        //käydään läpi kaikki ympäröivät ruudut mahdollisten törmäyksien varalta
+        
         for (int i = 0; i < dcxList.length; i++)
         {
             
@@ -92,7 +105,15 @@ public class CollisionDetection
         return cdr;
     }
     
-    private static CollisionDetectionResult circleBoxCollision(Vector2f center, float radius, Vector2f p1, Vector2f p2)
+    /**Suorittaa ympyrän ja (XY akseleiden suuntaisen) laatikon välisen törmäyksen
+     *
+     * @param center ympyrän keskipiste
+     * @param radius ympyrän säde
+     * @param p1 laatikon kulmapisteen koordinaatti
+     * @param p2 laatikon vastakkaisen kulmapisteen koordinaatti
+     * @return CollisionDetectionResult, korjausvektori mukaanlukien
+     */
+    public static CollisionDetectionResult circleBoxCollision(Vector2f center, float radius, Vector2f p1, Vector2f p2)
     {
         Vector2f nc = new Vector2f(center);
         CollisionDetectionResult cdr = new CollisionDetectionResult();
@@ -135,7 +156,15 @@ public class CollisionDetection
         return cdr;
     }
     
-    private static CollisionDetectionResult circleLineCollision(Vector2f center, float radius, Vector2f lineP1, Vector2f lineP2)
+    /** Suorittaa ympyrän ja linjan välisen törmäyksen
+     *
+     * @param center ympyrän keskipiste
+     * @param radius ympyrän säde
+     * @param lineP1 linjan ensimmäinen piste
+     * @param lineP2 linjan toinen piste
+     * @return CollisionDetectionResult, korjausvektori mukaanlukien
+     */
+    public static CollisionDetectionResult circleLineCollision(Vector2f center, float radius, Vector2f lineP1, Vector2f lineP2)
     {
         //en jaksanut koodata koko roskaa uudestaan jotenka nyysin koodin
         //vanhasta c++ projusta
