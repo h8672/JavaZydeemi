@@ -5,6 +5,8 @@
  */
 package Game.state.object;
 
+import org.lwjgl.util.vector.Vector2f;
+
 /**
  *
  * @author Juha-Matti
@@ -14,6 +16,11 @@ public interface GameObject {
     /**
      * GameObjects base methods
      */
-    
+    public Vector2f getPosition();
+    public Vector2f getSize();
+    public float getRotation();
+    public void setPosition(Vector2f position);
+    public void setSize(Vector2f size);
+    public void setRotation(float rotation);
     public void update();   //päivittyy
 }

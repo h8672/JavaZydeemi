@@ -5,7 +5,9 @@
  */
 package Game.state.object.actor.actors;
 
+import Game.Main;
 import Game.graphics.Drawing;
+import Game.graphics.FireParticle;
 import Game.graphics.Graphics;
 import Game.state.CollisionDetection;
 import Game.state.CollisionDetectionResult;
@@ -38,12 +40,22 @@ public class Human extends Actors {
     @Override
     public void update()
     {
-        this.setRotation(this.getRotation()+1);
+        this.setRotation(this.getRotation()+Main.randomFloat()*2);
         float xd = (float) -Math.sin(Math.toRadians(this.getRotation()))*0.65f;
         float yd = (float) -Math.cos(Math.toRadians(this.getRotation()))*0.65f;
+        
+        float fx = this.getPosition().x+xd*50;
+        float fy = this.getPosition().y+yd*50;
+        FireParticle f = new FireParticle();
+        f.setPos(new Vector2f(fx,fy));
+        f.setVel(new Vector2f(xd*18,yd*18));
+        
+
         xd +=this.getPosition().x;
         yd +=this.getPosition().y;
         this.setPosition(new Vector2f(xd,yd));
+        
+        
     }
     
     @Override

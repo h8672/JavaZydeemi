@@ -21,6 +21,8 @@ public interface Actor extends GameObject { // movable and acting game object
      * @return Weapon
      */
     
+    public Vector2f getVelocity();
+    public void setVelocity(Vector2f velocity);
     public Weapon attack();                 //hyökkää aseella
     public void defend(Weapon weapon);      //puolustautuu hyökkäykseltä
     public void defend(Item item);          //puolustautuu tavaralta

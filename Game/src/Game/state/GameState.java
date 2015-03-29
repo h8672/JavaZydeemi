@@ -34,8 +34,8 @@ public class GameState {
         AIlist = new ArrayList();
         actors = new ArrayList();
         map = new Map(14,14);
-        for (int i = 0; i < 40; i++)
-         actors.add(new Human(new Vector2f(Main.randomFloat()*400,Main.randomFloat()*400),0));
+        for (int i = 0; i < 10; i++)
+         actors.add(new Human(new Vector2f(Main.randomFloat()*800,Main.randomFloat()*600),0));
     }
 
     public void addGameObject(GameObject object){
@@ -57,16 +57,18 @@ public class GameState {
         for(Actor actor : actors)
         {
             actor.update();
-            if (actor instanceof Human)
+            
+            Actor act = actor;
+            //argumentit: checkCircleCollisionWithMap(pallon keskipiste, pallon säde, kartta)
+            CollisionDetectionResult cdr = CollisionDetection.checkCircleCollisionWithMap(act.getPosition(), 18, map);
+            
+            if (cdr.found)
             {
-                Actors act = (Actors)actor;
-                CollisionDetectionResult cdr = CollisionDetection.checkCircleCollisionWithMap(act.getPosition(), 18, map);
-                if (cdr.found)
-                {
-                    Vector2f d = act.getPosition();
-                    act.setPosition(new Vector2f(d.x+cdr.fix.x,d.y+cdr.fix.y));
-                }
+                //cdr.fix sisältää tarvitun muutoksen actorin sijaintiin
+                Vector2f d = act.getPosition();
+                act.setPosition(new Vector2f(d.x+cdr.fix.x,d.y+cdr.fix.y));
             }
+
         }
         
         
