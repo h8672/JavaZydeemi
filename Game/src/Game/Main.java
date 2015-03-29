@@ -94,10 +94,10 @@ public class Main {
         randomizer = new Random();
         
         try {
-            Display.setDisplayMode(new DisplayMode(800,600));
+            Display.setDisplayMode(new DisplayMode(1280,800));
             Display.create();
             Display.setVSyncEnabled(true);
-            Graphics.init(800,600); //ikkunan koko oltava sama
+            Graphics.init(1280,800); //ikkunan koko oltava sama
         } catch (LWJGLException ex) {
             System.out.println("Test");
         }

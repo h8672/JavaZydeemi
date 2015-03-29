@@ -23,7 +23,6 @@ public class Menu implements Renderable {
     private int x;
     private ArrayList valinnat;
     private float size;
-    private boolean visible;
     private boolean wait = true, select = false;
     private boolean visible = true;
     

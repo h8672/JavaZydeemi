@@ -45,6 +45,7 @@ class ShockWaveData
 public class Graphics
 {
     
+
     private static int MSAASamples;
     private static boolean enableMSAA;
 
@@ -61,6 +62,10 @@ public class Graphics
     
     private static int shaderColorizerProgram;
     private static int shaderColorizer;
+    
+    private static float shockSize = 200.f;
+    private static float shockDisplaceAmount = -10.f;
+    private static float shockSpeed = 4.f;
     
     private final static int shaderShockMax = 32;
     
@@ -84,14 +89,8 @@ public class Graphics
     
     private static int viewWidth;
     private static int viewHeight;
-
-    public static int getViewWidth() {
-        return viewWidth;
-    }
-
-    public static int getViewHeight() {
-        return viewHeight;
-    }
+    
+   
     private static Vector2f camera;
     private static ArrayList<TextRendererFont> fontArray;
     
@@ -120,6 +119,38 @@ public class Graphics
      */
     final public static int BaseLayer = 0;
     
+    public static float getShockSize() {
+        return shockSize;
+    }
+
+    public static void setShockSize(float shockSize) {
+        Graphics.shockSize = shockSize;
+    }
+    
+    public static float getShockSpeed() {
+        return shockSpeed;
+    }
+
+    public static void setShockSpeed(float shockSpeed) {
+        Graphics.shockSpeed = shockSpeed;
+    }
+    
+    public static float getShockDisplaceAmount() {
+        return shockDisplaceAmount;
+    }
+
+    public static void setShockDisplaceAmount(float shockDisplaceAmount) {
+        Graphics.shockDisplaceAmount = shockDisplaceAmount;
+    }
+    
+
+    public static int getViewWidth() {
+        return viewWidth;
+    }
+
+    public static int getViewHeight() {
+        return viewHeight;
+    }
 
     /** Lataa kuvan tiedostosta
      *
@@ -760,6 +791,8 @@ public class Graphics
         int sSCount = GL20.glGetUniformLocation(shaderShockProgram, "shockCount");
         int sShockPos = GL20.glGetUniformLocation(shaderShockProgram, "shockPos");
         int sShockSize = GL20.glGetUniformLocation(shaderShockProgram, "shockSize");
+        int sDisplace = GL20.glGetUniformLocation(shaderShockProgram, "displace");
+        int sMaxSize = GL20.glGetUniformLocation(shaderShockProgram, "maxSize");
         
         
  
@@ -772,7 +805,10 @@ public class Graphics
         GL20.glUniform1i(sW,viewWidth);
         GL20.glUniform1i(sH,viewHeight);
         GL20.glUniform1i(sSCount,currentShocks);
-
+        
+        GL20.glUniform1f(sDisplace,shockDisplaceAmount);
+        GL20.glUniform1f(sMaxSize,shockSize);
+        
         FloatBuffer posBuf = BufferUtils.createFloatBuffer(maxShocks*2);
         FloatBuffer sBuf = BufferUtils.createFloatBuffer(maxShocks);
 
@@ -1004,8 +1040,8 @@ public class Graphics
         ShockWaveData sw = new ShockWaveData();
         sw.pos = pos;
         sw.size = 0;
-        sw.maxSize = 180;
-        sw.vel = 5;
+        sw.maxSize = shockSize;
+        sw.vel = shockSpeed;
         shaderShockArray.add(sw);
     }
 

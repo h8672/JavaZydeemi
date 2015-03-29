@@ -3,31 +3,20 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/E:/GitHub/JavaZydeemi/Game/src/Game/state/object/objects/items/Bomb.java</file>
+            <file>file:/E:/GitHub/JavaZydeemi/Game/src/Game/state/item/Usable.java</file>
+            <file>file:/E:/GitHub/JavaZydeemi/Game/src/Game/menu/Menu.java</file>
             <file>file:/E:/GitHub/JavaZydeemi/Game/src/Game/state/object/actor/actors/Human.java</file>
+            <file>file:/E:/GitHub/JavaZydeemi/Game/src/Game/graphics/ParticleEffects.java</file>
             <file>file:/E:/GitHub/JavaZydeemi/Game/src/Game/state/GameState.java</file>
-            <file>file:/E:/GitHub/JavaZydeemi/Game/src/Game/state/object/actor/Actors.java</file>
             <file>file:/E:/GitHub/JavaZydeemi/Game/src/Game/graphics/Graphics.java</file>
             <file>file:/E:/GitHub/JavaZydeemi/Game/src/Game/graphics/Drawing.java</file>
-            <file>file:/E:/GitHub/JavaZydeemi/Game/src/Game/graphics/ImageData.java</file>
             <file>file:/E:/GitHub/JavaZydeemi/Game/src/Game/graphics/ExplosionParticle.java</file>
-            <file>file:/E:/GitHub/JavaZydeemi/Game/src/Game/state/object/objects/Wall.java</file>
-            <file>file:/E:/GitHub/JavaZydeemi/Game/src/Game/graphics/TextRendererFont.java</file>
-            <file>file:/E:/GitHub/JavaZydeemi/Game/src/Game/graphics/Decal.java</file>
+            <file>file:/E:/GitHub/JavaZydeemi/Game/src/Game/state/item/Weapon.java</file>
             <file>file:/E:/GitHub/JavaZydeemi/Game/src/Game/state/object/actor/Actor.java</file>
-            <file>file:/E:/GitHub/JavaZydeemi/Game/src/Game/state/object/objects/items/PotionGround.java</file>
-            <file>file:/E:/GitHub/JavaZydeemi/Game/src/Game/graphics/ParticleEffects.java</file>
-            <file>file:/E:/GitHub/JavaZydeemi/Game/src/Game/graphics/FireParticle.java</file>
-            <file>file:/E:/GitHub/JavaZydeemi/Game/src/Game/graphics/ParticleFX.java</file>
-            <file>file:/E:/GitHub/JavaZydeemi/Game/src/Game/state/Bullet.java</file>
-            <file>file:/E:/GitHub/JavaZydeemi/Game/src/Game/state/object/objects/items/ArmorGround.java</file>
+            <file>file:/E:/GitHub/JavaZydeemi/Game/src/Game/state/item/Item.java</file>
             <file>file:/E:/GitHub/JavaZydeemi/Game/src/Game/Main.java</file>
-            <file>file:/E:/GitHub/JavaZydeemi/Game/src/Game/state/object/GameObject.java</file>
-            <file>file:/E:/GitHub/JavaZydeemi/Game/src/Game/graphics/Animation.java</file>
-            <file>file:/E:/GitHub/JavaZydeemi/Game/src/Game/graphics/Animator.java</file>
-            <file>file:/E:/GitHub/JavaZydeemi/Game/src/Game/graphics/Renderable.java</file>
-            <file>file:/E:/GitHub/JavaZydeemi/Game/src/Game/graphics/Texture.java</file>
-            <file>file:/E:/GitHub/JavaZydeemi/Game/src/Game/state/object/GameObjects.java</file>
+            <file>file:/E:/GitHub/JavaZydeemi/Game/src/Game/state/item/Armor.java</file>
+            <file>file:/E:/GitHub/JavaZydeemi/Game/src/Game/state/Map.java</file>
         </group>
     </open-files>
 </project-private>

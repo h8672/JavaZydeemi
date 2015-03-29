@@ -33,8 +33,15 @@ public class GameState {
         AIlist = new ArrayList();
         actors = new ArrayList();
         map = new Map(20,12);
-        for (int i = 0; i < 10; i++)
-         actors.add(new Human(new Vector2f(Main.randomFloat()*800,Main.randomFloat()*600), 20));
+        for (int i = 0; i < 15; i++)
+        {
+            Human h = new Human(new Vector2f(Main.randomFloat()*600+100,Main.randomFloat()*400+100), 20);
+            h.setColorHead(new float[]{Main.randomFloat(),Main.randomFloat(),Main.randomFloat(),1.0f});
+            h.setColorTorso(new float[]{Main.randomFloat(),Main.randomFloat(),Main.randomFloat(),1.0f});
+            h.setColorArms(new float[]{Main.randomFloat(),Main.randomFloat(),Main.randomFloat(),1.0f});
+            h.setRotation(Main.randomFloat()*360);
+            actors.add(h);
+        }
     }
 
     public void addGameObject(GameObject object){
