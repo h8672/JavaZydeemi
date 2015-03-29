@@ -108,7 +108,7 @@ public class Drawing
     {
         GL11.glPushMatrix();
         GL11.glTranslatef(pos.x,pos.y,0.0f);
-        GL11.glRotatef(rot,0,0,1);
+        GL11.glRotatef(rot,0,0,-1);
         GL11.glScalef(scale.x,scale.y,0.0f);
 
         bindAndPrintCenteredTexture(tex.getBaseImage());
@@ -127,7 +127,7 @@ public class Drawing
     {
         GL11.glPushMatrix();
         GL11.glTranslatef(pos.x,pos.y,0.0f);
-        GL11.glRotatef(rot,0,0,1);
+        GL11.glRotatef(rot,0,0,-1);
         
 
         bindAndPrintCenteredTexture(tex.getBaseImage());
@@ -147,7 +147,7 @@ public class Drawing
     {
         GL11.glPushMatrix();
         GL11.glTranslatef(pos.x,pos.y,0.0f);
-        GL11.glRotatef(rot,0,0,1);
+        GL11.glRotatef(rot,0,0,-1);
         GL11.glScalef(scale.x,scale.y,0.0f);
         
         GL11.glColor4f(color[0],color[1],color[2],color[3]);
@@ -178,7 +178,7 @@ public class Drawing
     {
         GL11.glPushMatrix();
         GL11.glTranslatef(pos.x,pos.y,0.0f);
-        GL11.glRotatef(rot,0,0,1);
+        GL11.glRotatef(rot,0,0,-1);
         GL11.glScalef(scale.x,scale.y,0.0f);
         GL11.glColor4f(color[0],color[1],color[2],color[3]);
         

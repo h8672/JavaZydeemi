@@ -856,12 +856,13 @@ public class Graphics
         
         // näyttö/framebuffer tyhjäks
         GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-        
+        GL11.glEnable(GL11.GL_ALPHA_TEST);
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
         //piirretään
         renderRenderables(renderableList);
         
         
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        
         
         GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
         renderRenderables(intermediateRenderableList);
@@ -961,11 +962,13 @@ public class Graphics
     {
         try 
         {
+            if (!textureMap.containsKey(tex))
+                throw new Exception();
             return textureMap.get(tex);
         }
         catch (Exception e)
         {
-            System.out.println("Couldn't find texture "+tex+" :"+e);
+            System.out.println("Couldn't find texture "+tex);
             return null;
         }
     }
@@ -1004,6 +1007,7 @@ public class Graphics
         generateTexture("default",loadImageData("./data/tekstuuri.png",true));
         generateTexture("explosion1",loadImageData("./data/fire/explosion.png",false));
         generateTexture("explosiondecal",loadImageData("./data/fire/explosiondecal.png",false));
+        loadTexture("./data/tyyppi.png","tyyppi1",false);
         
         Animation anim = new Animation("fieryFlames");
         anim.addFrame(generateTexture("fire1",loadImageData("./data/fire/f1.png",false)));

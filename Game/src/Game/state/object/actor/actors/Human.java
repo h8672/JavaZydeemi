@@ -5,7 +5,10 @@
  */
 package Game.state.object.actor.actors;
 
+import Game.graphics.Drawing;
 import Game.graphics.Graphics;
+import Game.state.CollisionDetection;
+import Game.state.CollisionDetectionResult;
 import Game.state.item.equipment.Clothes;
 import Game.state.item.equipment.Pistol;
 import Game.state.object.actor.Actors;
@@ -32,10 +35,26 @@ public class Human extends Actors {
         this.setWeapon(new Pistol());
     }
 
+    @Override
+    public void update()
+    {
+        this.setRotation(this.getRotation()+1);
+        float xd = (float) -Math.sin(Math.toRadians(this.getRotation()))*0.65f;
+        float yd = (float) -Math.cos(Math.toRadians(this.getRotation()))*0.65f;
+        xd +=this.getPosition().x;
+        yd +=this.getPosition().y;
+        this.setPosition(new Vector2f(xd,yd));
+    }
+    
+    @Override
+    public float getDepth()
+    {
+        return 20.0f;
+    }
 
     @Override
     public void render() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        Drawing.drawSpriteCentered(Graphics.getTexture("tyyppi1"), this.getPosition(),this.getRotation());
     }
 
 }

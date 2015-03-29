@@ -37,7 +37,7 @@ public class CollisionDetection
         
         if (map.getTileCollision(cx,cy)) //löytyi törmäys, valitettavasti pallo on seinän sisällä (jostain kumman syystä)
         {
-            cdr.fix = new Vector2f(0,0);
+            cdr.fix = new Vector2f(3,3);
             cdr.found = true;
             return cdr;
         }
