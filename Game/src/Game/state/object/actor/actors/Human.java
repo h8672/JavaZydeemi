@@ -65,8 +65,14 @@ public class Human extends Actors {
     }
 
     @Override
-    public void render() {
+    public void render()
+    {
+        float[] R = new float[]{0.7f,   0.1f,   0.1f,   1.0f};
+        float[] G = new float[]{1f, 0.925f, 0.765f, 1.0f};
+        float[] B = new float[]{0.7f,   0.7f,   0.7f,   1.0f};
+        Drawing.enableColorizer(R, G, B);
         Drawing.drawSpriteCentered(Graphics.getTexture("tyyppi1"), this.getPosition(),this.getRotation());
+        Drawing.disableColorizer();
     }
 
 }

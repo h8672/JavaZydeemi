@@ -6,6 +6,7 @@
 package Game.graphics;
 
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL20;
 import org.lwjgl.util.vector.Vector2f;
 
 /** Piirtoapumetodit sisältävä luokka
@@ -94,6 +95,16 @@ public class Drawing
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         GL11.glColor4f(1.0f,1.0f,1.0f,1.0f);
         GL11.glPopMatrix();
+    }
+    
+    
+    public static void enableColorizer(float R[],float G[], float B[])
+    {
+       Graphics.enableColorizer(R,G,B);
+    }
+    public static void disableColorizer()
+    {
+       Graphics.disableColorizer();
     }
     
 

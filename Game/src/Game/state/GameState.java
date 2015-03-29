@@ -33,7 +33,7 @@ public class GameState {
         player = new Player();
         AIlist = new ArrayList();
         actors = new ArrayList();
-        map = new Map(14,14);
+        map = new Map(20,12);
         for (int i = 0; i < 10; i++)
          actors.add(new Human(new Vector2f(Main.randomFloat()*800,Main.randomFloat()*600),0));
     }

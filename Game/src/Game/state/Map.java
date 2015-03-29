@@ -5,6 +5,7 @@
  */
 package Game.state;
 
+import Game.Main;
 import Game.graphics.Drawing;
 import Game.graphics.Graphics;
 import Game.graphics.Renderable;
@@ -73,7 +74,11 @@ public class Map implements Renderable
                 if (i == 0 || i == width-1 || i2 == 0 || i2 == height-1)
                     col.add(TileWall);
                 else
-                    col.add((i+i2)%4);
+                {
+                    col.add((i/4+i2*8)%3+1);
+                    
+
+                }
                 
             }
             tileMap.add(col);

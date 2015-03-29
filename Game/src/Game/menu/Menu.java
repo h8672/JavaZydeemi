@@ -23,6 +23,7 @@ public class Menu implements Renderable {
     private int x;
     private ArrayList valinnat;
     private float size;
+    private boolean visible;
     private boolean wait = true, select = false;
     
     Bullet bullet = new Bullet(new Vector2f(400, 300), new Vector2f(5,4), 1.0f);

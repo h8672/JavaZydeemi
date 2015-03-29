@@ -59,6 +59,9 @@ public class Graphics
     private static int shaderShockProgram;
     private static int shaderShock;
     
+    private static int shaderColorizerProgram;
+    private static int shaderColorizer;
+    
     private final static int shaderShockMax = 32;
     
     private static LinkedList<ShockWaveData> shaderShockArray;
@@ -81,6 +84,14 @@ public class Graphics
     
     private static int viewWidth;
     private static int viewHeight;
+
+    public static int getViewWidth() {
+        return viewWidth;
+    }
+
+    public static int getViewHeight() {
+        return viewHeight;
+    }
     private static Vector2f camera;
     private static ArrayList<TextRendererFont> fontArray;
     
@@ -556,8 +567,16 @@ public class Graphics
             GL30.glFramebufferRenderbuffer(GL30.GL_FRAMEBUFFER, GL30.GL_DEPTH_ATTACHMENT, GL30.GL_RENDERBUFFER, RBODepth);
             
             //kokeillaan ladata shaderit
-            try {  
+            try {
+                shaderColorizer = compileShader("./data/shaders/colorize.frag",GL20.GL_FRAGMENT_SHADER);  
+                shaderVertexDefault = compileShader("./data/shaders/def.vert",GL20.GL_VERTEX_SHADER);  
+                shaderColorizerProgram = GL20.glCreateProgram();
                 
+                GL20.glAttachShader(shaderColorizerProgram,shaderColorizer);
+                GL20.glAttachShader(shaderColorizerProgram,shaderVertexDefault);
+                GL20.glLinkProgram(shaderColorizerProgram);
+                
+
                 shaderShock = compileShader("./data/shaders/shock.frag",GL20.GL_FRAGMENT_SHADER);
                 
                 
@@ -1060,5 +1079,32 @@ public class Graphics
     public static int getRenderableCount()
     {
         return getIntermediateRenderableCount()+getMenuRenderableCount()+getBaseRenderableCount();
+    }
+
+    static void enableColorizer(float R[],float G[], float B[])
+    {
+        if (enableShaders)
+        {
+            int sTex = GL20.glGetUniformLocation(Graphics.shaderColorizerProgram, "tex");
+
+            GL20.glUseProgram(shaderColorizerProgram);
+
+            int sR= GL20.glGetUniformLocation(shaderColorizerProgram, "colorR");
+            int sG= GL20.glGetUniformLocation(shaderColorizerProgram, "colorG");
+            int sB = GL20.glGetUniformLocation(shaderColorizerProgram, "colorB");
+
+
+            GL20.glUniform1i(sTex,0);
+
+            GL20.glUniform4f(sR, R[0], R[1], R[2], R[3]);
+            GL20.glUniform4f(sG, G[0], G[1], G[2], G[3]);
+            GL20.glUniform4f(sB, B[0], B[1], B[2], B[3]);
+        }
+    }
+    
+    static void disableColorizer()
+    {
+        if (enableShaders)
+        GL20.glUseProgram(0);
     }
 }
