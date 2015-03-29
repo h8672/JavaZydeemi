@@ -3,14 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
-package game.state;
-
+package Game.state.object.objects.items;
 
 /**
- *
- * @author h8672
+ * Dont step on it!
+ * @author Juha-Matti
  */
-public class Player {
+public class Bomb {
     
 }

@@ -7,6 +7,7 @@ package Game.menu;
 import Game.Main;
 import Game.graphics.Renderable;
 import Game.graphics.Graphics;
+import game.state.Bullet;
 import java.util.ArrayList;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -23,6 +24,9 @@ public class Menu implements Renderable {
     private ArrayList valinnat;
     private float size;
     private boolean wait = true, select = false;
+    
+    Bullet bullet = new Bullet(new Vector2f(400, 300), new Vector2f(5,4), 1.0f);
+    
     public Menu(String otsikko){
         x = 1;
         valinnat = new ArrayList();
@@ -65,20 +69,18 @@ public class Menu implements Renderable {
     }
     
     @Override
-    public boolean isVisible()
-    {
+    public boolean isVisible(){
         return true;
     }
     
     @Override
-    public float getDepth()
-    {
+    public float getDepth(){
         return 100.0f; // Menu on kaikista päällimmäisenä
     }
     
     @Override
-    public void render()
-    {
+    public void render(){
+        bullet.update();
         float[] color = {1.0f,0.9f,0.6f};
         for(int i = 0; i < this.valinnat.size(); i++){
             if (i == 0) size = 3.0f;

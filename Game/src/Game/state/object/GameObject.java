@@ -3,14 +3,17 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
-package game.state;
-
+package Game.state.object;
 
 /**
  *
- * @author h8672
+ * @author Juha-Matti
  */
-public class Player {
+public interface GameObject {
+
+    /**
+     * GameObjects base methods
+     */
     
+    public void update();   //päivittyy
 }

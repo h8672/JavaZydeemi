@@ -938,7 +938,7 @@ public class Graphics
         return animationMap.get(anim);
     }
     
-    static Texture getTexture(String tex)
+    public static Texture getTexture(String tex)
     {
         return textureMap.get(tex);
     }

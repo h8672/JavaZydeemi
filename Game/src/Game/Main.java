@@ -7,12 +7,12 @@ package Game;
 
 import Game.graphics.Graphics;
 import Game.menu.Menu;
+import Game.state.GameState;
 import java.util.Random;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.*;
 import static org.lwjgl.input.Keyboard.*;
 import org.lwjgl.opengl.*;
-import org.lwjgl.util.vector.Vector2f;
 
 /**
 import java.util.HashSet;
@@ -22,13 +22,6 @@ import java.util.Scanner;
  * @author Juha-Matti
  */
 public class Main {
-    /*
-    private static GameState game;
-    private static Graphics graphics;
-        Vector2f vector = new Vector2f();
-        Vector2f velocity = new Vector2f();
-        vector.translate(velocity.x, velocity.y);
-    */
     //private static Input input;
     
     /**
@@ -125,10 +118,11 @@ public class Main {
     }
     
     private static void gameLoop(){
+        GameState game = new GameState();
+        
         while(!Display.isCloseRequested()){
             
-            
-            
+            game.update();
             render();
             time++;
         }

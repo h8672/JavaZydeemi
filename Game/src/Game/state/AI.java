@@ -10,6 +10,6 @@ package game.state;
  *
  * @author h8672
  */
-public class AI extends Actor{
+public class AI {
     
 }
