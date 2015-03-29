@@ -22,5 +22,5 @@ public interface GameObject {
     public void setPosition(Vector2f position);
     public void setSize(Vector2f size);
     public void setRotation(float rotation);
-    public void update();   //päivittyy
+    public void update();
 }

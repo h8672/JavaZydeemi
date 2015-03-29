@@ -9,6 +9,6 @@ package Game.state.object.objects.items;
  *
  * @author Juha-Matti
  */
-public class PotionGround {
+public class BandageGround {
     
 }

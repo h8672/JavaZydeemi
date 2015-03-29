@@ -83,16 +83,17 @@ public abstract class Weapon implements Equipment { // implements event (burning
     @Override
     public void destroy(float amount){
         if(this.ammunation >= amount) this.ammunation -= amount;
-        else //if dont have that many items to drop
-            this.ammunation = 0;
+        else this.ammunation = 0;
     }
     
-    @Override
     public void equip(){
         this.equip = true;
     }
-    @Override
     public void unequip(){
         this.equip = false;
+    }
+    @Override
+    public boolean isEquipped(){
+        return this.equip;
     }
 }

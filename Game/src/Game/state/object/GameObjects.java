@@ -18,12 +18,15 @@ public abstract class GameObjects implements GameObject, Renderable {
     String Image;
     boolean Visible;
 
+    @Override
     public Vector2f getPosition() {
         return position;
     }
+    @Override
     public Vector2f getSize() {
         return size;
     }
+    @Override
     public float getRotation() {
         return rotation;
     }
@@ -34,12 +37,15 @@ public abstract class GameObjects implements GameObject, Renderable {
         return Image;
     }
 
+    @Override
     public void setPosition(Vector2f position) {
         this.position = position;
     }
+    @Override
     public void setSize(Vector2f size) {
         this.size = size;
     }
+    @Override
     public void setRotation(float rotation) {
         this.rotation = rotation;
     }

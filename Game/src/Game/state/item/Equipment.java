@@ -10,6 +10,5 @@ package Game.state.item;
  * @author Juha-Matti
  */
 public interface Equipment extends Item {
-    public void equip();
-    public void unequip();
+    public boolean isEquipped();
 }

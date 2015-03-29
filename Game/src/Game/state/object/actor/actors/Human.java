@@ -9,8 +9,6 @@ import Game.Main;
 import Game.graphics.Drawing;
 import Game.graphics.FireParticle;
 import Game.graphics.Graphics;
-import Game.state.CollisionDetection;
-import Game.state.CollisionDetectionResult;
 import Game.state.item.equipment.Clothes;
 import Game.state.item.equipment.Pistol;
 import Game.state.object.actor.Actors;
@@ -56,12 +54,6 @@ public class Human extends Actors {
         this.setPosition(new Vector2f(xd,yd));
         
         
-    }
-    
-    @Override
-    public float getDepth()
-    {
-        return 20.0f;
     }
 
     @Override
