@@ -7,7 +7,7 @@ package Game.state.object.actor;
 
 import Game.graphics.Renderable;
 import Game.state.item.Armor;
-import Game.state.item.Item;
+import Game.state.item.Usable;
 import Game.state.item.Weapon;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -17,8 +17,7 @@ import org.lwjgl.util.vector.Vector2f;
  */
 public abstract class Actors implements Actor, Renderable {
     private Vector2f position, size, velocity;
-    private float rotation, height, friction, weight;
-    private float HP, DMG, attackrange;
+    private float rotation, height, friction, weight, HP;
     private String Image;
     private boolean visible;
     private Armor armor;
@@ -37,17 +36,20 @@ public abstract class Actors implements Actor, Renderable {
         this.weapon = weapon;
     }
     
+    @Override
     public Vector2f getPosition() {
         return position;
     }
+    @Override
     public Vector2f getSize() {
         return size;
     }
-    public Vector2f getVelocity() {
-        return velocity;
-    }
+    @Override
     public float getRotation() {
         return rotation;
+    }
+    public Vector2f getVelocity() {
+        return velocity;
     }
     public float getHeight() {
         return height;
@@ -65,17 +67,20 @@ public abstract class Actors implements Actor, Renderable {
         return Image;
     }
 
+    @Override
     public void setPosition(Vector2f position) {
         this.position = position;
     }
+    @Override
     public void setSize(Vector2f size) {
         this.size = size;
     }
-    public void setVelocity(Vector2f velocity) {
-        this.velocity = velocity;
-    }
+    @Override
     public void setRotation(float rotation) {
         this.rotation = rotation;
+    }
+    public void setVelocity(Vector2f velocity) {
+        this.velocity = velocity;
     }
     public void setHeight(float height) {
         this.height = height;
@@ -103,33 +108,25 @@ public abstract class Actors implements Actor, Renderable {
     }
     @Override
     public float getDepth(){
-        return this.getHeight();
+        return this.height;
     }
     
     //Actor methods
     @Override
     public Weapon attack() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return weapon;
     }
     @Override
-    public void defend(Weapon weapon) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public float defend(Weapon weapon) {
+        return this.HP += armor.getAmount() - weapon.getDMG();
     }
     @Override
-    public void defend(Item item) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public float defend(Usable usable) {
+        return this.HP += armor.getAmount() - usable.getAmount();
     }
     @Override
     public Vector2f move() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-    @Override
-    public Item use() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-    @Override
-    public void update() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return velocity.negate(position);
     }
     
 }

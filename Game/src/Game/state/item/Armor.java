@@ -10,15 +10,22 @@ package Game.state.item;
  * @author Juha-Matti
  */
 public abstract class Armor implements Equipment {
-    String name;
-    float amount;
-    boolean equip = false;
+    private String name;
+    private float amount;
+    private boolean equip = false;
     
     public void setName(String name){
         this.name = name;
     }
     public void setAmount(float amount){
         this.amount = amount;
+    }
+    
+    public String getName(){
+        return this.name;
+    }
+    public float getAmount(){
+        return this.amount;
     }
     
     @Override
@@ -48,12 +55,14 @@ public abstract class Armor implements Equipment {
     }
     
     
-    @Override
     public void equip(){
         this.equip = true;
     }
-    @Override
     public void unequip(){
         this.equip = false;
+    }
+    @Override
+    public boolean isEquipped(){
+        return this.equip;
     }
 }

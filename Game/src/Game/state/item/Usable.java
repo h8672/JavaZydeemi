@@ -50,7 +50,6 @@ public abstract class Usable implements Item {
     @Override
     public void destroy(float amount){
         if(this.amount >= amount) this.amount -= amount;
-        else //if dont have that many items to drop
-            this.amount = 0;
+        else this.amount = 0;
     }
 }

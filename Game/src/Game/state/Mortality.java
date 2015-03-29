@@ -10,5 +10,9 @@ package Game.state;
  * @author Juha-Matti
  */
 public interface Mortality {
-    public void Damaged();
+    //shows health after taking damage
+    //if negative, deletes object from list
+    //or displays player death message
+    public float damage(float damage);
+    
 }

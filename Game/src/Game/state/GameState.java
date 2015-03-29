@@ -8,11 +8,10 @@ package Game.state;
 import Game.Main;
 import Game.state.object.GameObject;
 import Game.state.object.actor.Actor;
-import Game.state.object.actor.Actors;
 import Game.state.object.actor.actors.Human;
 import game.state.AI;
 import game.state.Bullet;
-import game.state.Player;
+import game.state.object.actor.actors.Player;
 import java.util.ArrayList;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -30,12 +29,12 @@ public class GameState {
     private Map map;
     public GameState(){
         objects = new ArrayList();
-        player = new Player();
+        player = new Player(new Vector2f(0,0), 20);
         AIlist = new ArrayList();
         actors = new ArrayList();
         map = new Map(14,14);
         for (int i = 0; i < 10; i++)
-         actors.add(new Human(new Vector2f(Main.randomFloat()*800,Main.randomFloat()*600),0));
+         actors.add(new Human(new Vector2f(Main.randomFloat()*800,Main.randomFloat()*600), 20));
     }
 
     public void addGameObject(GameObject object){

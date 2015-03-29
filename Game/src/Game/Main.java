@@ -66,6 +66,8 @@ public class Main {
             }
             //Valinta ehto
             else if(Keyboard.isKeyDown(KEY_RETURN)){
+                //Removes menu from renderables and continues to switch-case
+                Graphics.removeRenderable(menu);
                 switch(menu.chosenone()){
                     case 1:
                         gameLoop();
@@ -80,11 +82,12 @@ public class Main {
             // Sulkemis ehto
             else if(Keyboard.isKeyDown(
                     Keyboard.KEY_ESCAPE) || Display.isCloseRequested()
-                    ) menu.close();
+                    ){
+                menu.close();
+            }
             else;
             time++;
         }
-        Graphics.removeRenderable(menu);
     }
     
     private static void init(){
@@ -95,8 +98,6 @@ public class Main {
             Display.create();
             Display.setVSyncEnabled(true);
             Graphics.init(800,600); //ikkunan koko oltava sama
-            
-
         } catch (LWJGLException ex) {
             System.out.println("Test");
         }
@@ -133,8 +134,6 @@ public class Main {
             Display.update();
             Display.sync(60);
     }
-    
-    
     
     private static void cleanUp(){
         Display.destroy();

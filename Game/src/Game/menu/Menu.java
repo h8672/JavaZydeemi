@@ -24,6 +24,7 @@ public class Menu implements Renderable {
     private ArrayList valinnat;
     private float size;
     private boolean wait = true, select = false;
+    private boolean visible = true;
     
     Bullet bullet = new Bullet(new Vector2f(400, 300), new Vector2f(5,4), 1.0f);
     
@@ -70,7 +71,7 @@ public class Menu implements Renderable {
     
     @Override
     public boolean isVisible(){
-        return true;
+        return visible;
     }
     
     @Override
