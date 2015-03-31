@@ -75,7 +75,7 @@ public class Map implements Renderable
                     col.add(TileWall);
                 else
                 {
-                    col.add((i/4+i2*8)%3+1);
+                    col.add((i*11411*i2+1)%4);
                     
 
                 }
@@ -122,7 +122,7 @@ public class Map implements Renderable
     @Override
     public float getDepth() {
         // Kartta kaikista alin, kaikki juoksee päällä
-        return 1.0f;
+        return -99.0f;
     }
 
     @Override

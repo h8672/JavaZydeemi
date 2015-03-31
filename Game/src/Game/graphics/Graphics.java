@@ -499,11 +499,11 @@ public class Graphics
      * @param WindowH window width
      * @return returns true if successful
      */
-    public static boolean init(int WindowW, int WindowH)
+    public static boolean init(GraphicsSettings set)
     {
         //ikkunan koko
-        viewWidth = WindowW;
-        viewHeight = WindowH;
+        viewWidth = set.windowWidth;
+        viewHeight = set.windowHeight;
         
         //asetetaan kuvaruudun projektio
         GL11.glMatrixMode(GL11.GL_PROJECTION);
@@ -552,8 +552,9 @@ public class Graphics
             else
                 allowMSAA = true;
             
-            enableMSAA = allowMSAA;
-            MSAASamples = getMSAAMaxSamples();
+            
+            enableMSAA = allowMSAA&&set.MSAAEnabled;
+            MSAASamples = Math.min(getMSAAMaxSamples(),set.MSAASamples);
                      
             //Framebufferien alustus
             
@@ -641,8 +642,8 @@ public class Graphics
             System.out.println("Multisampling antialiasing disabled");
         
         
-        enableShaders = allowShaders;
-        enableFBO = allowFBO;
+        enableShaders = allowShaders&&set.shadersEnabled;
+        enableFBO = allowFBO&&set.FBOEnabled;
         
         //perus objektien alustuksia
         imageDataArray = new ArrayList<>();
@@ -972,6 +973,7 @@ public class Graphics
             */
             
         }
+        GL11.glLoadIdentity();
         
         GL11.glEnable(GL11.GL_ALPHA_TEST);
         boolean fboWasEnabled= enableFBO;

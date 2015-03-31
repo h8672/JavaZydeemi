@@ -6,6 +6,7 @@
 package Game;
 
 import Game.graphics.Graphics;
+import Game.graphics.GraphicsSettings;
 import Game.menu.Menu;
 import Game.state.GameState;
 import java.util.Random;
@@ -45,6 +46,7 @@ public class Main {
     public static void main(String[] args) {
         init();
         menu();
+        cleanUp();
     }
     
     private static void menu(){
@@ -94,10 +96,21 @@ public class Main {
         randomizer = new Random();
         
         try {
-            Display.setDisplayMode(new DisplayMode(1280,800));
+            GraphicsSettings settings = new GraphicsSettings();
+            settings.windowWidth =1280;
+            settings.windowHeight =800;
+            settings.FBOEnabled = true;
+            settings.MSAAEnabled = true;
+            settings.MSAASamples = 2;
+            settings.shadersEnabled = true;
+            
+            Display.setDisplayMode
+        (new DisplayMode(settings.windowWidth,settings.windowHeight));
+            
             Display.create();
             Display.setVSyncEnabled(true);
-            Graphics.init(1280,800); //ikkunan koko oltava sama
+            
+            Graphics.init(settings);
         } catch (LWJGLException ex) {
             System.out.println("Test");
         }

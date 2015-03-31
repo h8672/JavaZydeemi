@@ -5,16 +5,18 @@
  */
 package Game.state.item;
 
+import org.lwjgl.util.vector.Vector2f;
+
 /**
  * Base abstract class for Equipment interface
  * @author Juha-Matti
  */
 public abstract class Weapon implements Equipment { // implements event (burning, explosion, freezing and so on...)
     private String name;
-    private float DMG, attackrange, cone; // cone like part of circle, piece of cake and so on...
+    private float DMG, attackrange, attackspeed, cone; // cone like part of circle, piece of cake and so on...
     private float reloadtime, ammunation, clipsize; // ammunation stuff
     boolean equip;
-
+    
     public String getName() {
         return name;
     }
@@ -23,6 +25,9 @@ public abstract class Weapon implements Equipment { // implements event (burning
     }
     public float getAttackrange() {
         return attackrange;
+    }
+    public float getAttackspeed() {
+        return attackspeed;
     }
     public float getCone() {
         return cone;
@@ -46,6 +51,9 @@ public abstract class Weapon implements Equipment { // implements event (burning
     public void setAttackrange(float attackrange) {
         this.attackrange = attackrange;
     }
+    public void setAttackspeed(float attackspeed) {
+        this.attackspeed = attackspeed;
+    }
     public void setCone(float cone) {
         this.cone = cone;
     }
@@ -59,8 +67,12 @@ public abstract class Weapon implements Equipment { // implements event (burning
         this.clipsize = clipsize;
     }
     
+    public abstract void attack(Vector2f position, float height, float rotation);
+    
+    
     @Override
     public void pick(float amount){
+        this.equip();
         this.ammunation += amount;
     }
     @Override

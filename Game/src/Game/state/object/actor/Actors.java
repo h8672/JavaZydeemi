@@ -6,6 +6,7 @@
 package Game.state.object.actor;
 
 import Game.graphics.Renderable;
+import Game.state.Attack;
 import Game.state.item.Armor;
 import Game.state.item.Usable;
 import Game.state.item.Weapon;
@@ -48,9 +49,6 @@ public abstract class Actors implements Actor, Renderable {
     public float getRotation() {
         return rotation;
     }
-    public Vector2f getVelocity() {
-        return velocity;
-    }
     public float getHeight() {
         return height;
     }
@@ -81,6 +79,19 @@ public abstract class Actors implements Actor, Renderable {
     }
     public void setVelocity(Vector2f velocity) {
         this.velocity = velocity;
+    }
+    public void setVelocity(float speed, float rotation){
+        velocity = new Vector2f(0,0);
+        this.velocity.setX(- speed * (float)Math.sin(Math.toRadians(rotation)));
+        this.velocity.setY(- speed * (float)Math.cos(Math.toRadians(rotation)));
+    }
+    public void addVelocity(Vector2f velocity){
+        this.velocity.setX(velocity.getX() + this.velocity.getX());
+        this.velocity.setY(velocity.getY() + this.velocity.getY());
+    }
+    public void addVelocity(float speed, float rotation){
+        this.velocity.setX(this.velocity.getX() - speed * (float)Math.sin(Math.toRadians(rotation)));
+        this.velocity.setY(this.velocity.getY() - speed * (float)Math.cos(Math.toRadians(rotation)));
     }
     public void setHeight(float height) {
         this.height = height;
@@ -113,12 +124,12 @@ public abstract class Actors implements Actor, Renderable {
     
     //Actor methods
     @Override
-    public Weapon attack() {
-        return weapon;
+    public void attack(){
+        this.weapon.attack(this.position, this.height, this.rotation);
     }
     @Override
-    public float defend(Weapon weapon) {
-        return this.HP += armor.getAmount() - weapon.getDMG();
+    public float defend(Attack attack) {
+        return this.HP += armor.getAmount() - attack.hit();
     }
     @Override
     public float defend(Usable usable) {
@@ -126,7 +137,10 @@ public abstract class Actors implements Actor, Renderable {
     }
     @Override
     public Vector2f move() {
-        return velocity.negate(position);
+        this.position.x += this.velocity.x;
+        this.position.y += this.velocity.y;
+        this.velocity.set(0,0);
+        return position;
     }
     
 }

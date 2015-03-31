@@ -6,10 +6,12 @@
 
 package game.state.object.actor.actors;
 
+import Game.graphics.Drawing;
 import Game.graphics.Graphics;
 import Game.state.item.equipment.Clothes;
 import Game.state.item.equipment.Pistol;
 import Game.state.object.actor.Actors;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.vector.Vector2f;
 
 
@@ -21,7 +23,6 @@ import org.lwjgl.util.vector.Vector2f;
 public class Player extends Actors {
     
     public Player(Vector2f position, float height) {
-        Graphics.registerRenderable(this, Graphics.BaseLayer);
         this.setImage("Human");
         this.setPosition(position); // Position in map
         this.setHeight(height); // How high in the screen
@@ -33,16 +34,40 @@ public class Player extends Actors {
         this.setVisible(true);
         this.setArmor(new Clothes());
         this.setWeapon(new Pistol());
+        Graphics.registerRenderable(this, Graphics.BaseLayer);
     }
     
     @Override
     public void update() {
+        if (Keyboard.isKeyDown(Keyboard.KEY_LEFT)){
+            this.setRotation(this.getRotation() + 4f);
+        }
+        if (Keyboard.isKeyDown(Keyboard.KEY_RIGHT)){
+            this.setRotation(this.getRotation() - 4f);
+        }
+        if (Keyboard.isKeyDown(Keyboard.KEY_Z)){
+            this.setVelocity(4f, this.getRotation() + 90);
+        }
+        if (Keyboard.isKeyDown(Keyboard.KEY_X)){
+            this.setVelocity(4f, this.getRotation() - 90);
+        }
+        if (Keyboard.isKeyDown(Keyboard.KEY_UP)){
+            this.addVelocity(4f, this.getRotation());
+            
+        }
+        if (Keyboard.isKeyDown(Keyboard.KEY_DOWN)){
+             this.addVelocity(-2f, this.getRotation());
+             
+        }
+        if (Keyboard.isKeyDown(Keyboard.KEY_SPACE)){
+            this.attack();
+        }
         
     }
 
     @Override
     public void render() {
-        
+        Drawing.drawSpriteCentered(Graphics.getTexture("tyyppi1"), this.getPosition(),this.getRotation());
     }
 
 }
