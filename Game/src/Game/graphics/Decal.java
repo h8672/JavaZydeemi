@@ -16,7 +16,12 @@ public class Decal extends ParticleFX
 {
     private Vector2f pos;
     private Vector2f scale;
-
+    private int disappearTimer;
+    private static int decalDisappearTime = 300;
+    private static int maxDecals = 100;
+    private static int totalDecalsCreated = 0;
+    private int decalID = 0;
+    private boolean toBeDeleted = false;
     /** Palauttaa skaalauksen
      *
      * @return skaalaus
@@ -56,12 +61,17 @@ public class Decal extends ParticleFX
      */
     public Decal (Texture tex)
     {
+        disappearTimer = 0;
         pos = new Vector2f();
         scale = new Vector2f(1f,1f);
         texture = tex;
         
+        
         rotation = Main.randomFloat()*360;
-        Graphics.registerRenderable(this,Graphics.BaseLayer);
+        Graphics.registerRenderable(this,Graphics.IntermediateAlphaLayer);
+        
+        decalID = totalDecalsCreated;
+        totalDecalsCreated++;
     }
 
     @Override
@@ -77,8 +87,29 @@ public class Decal extends ParticleFX
     @Override
     public void render()
     {
-       
-        Drawing.drawSpriteCentered(texture, pos,rotation,scale);
+        float alpha = 1f-((float)disappearTimer/decalDisappearTime);
+        alpha = alpha*alpha*alpha;
+        float[] color = new float[]{1.0f,1.0f,1.0f,alpha};
+        Drawing.drawSpriteCentered(texture, pos,rotation,scale,color);
+        
+        
+        if (toBeDeleted)
+        {
+            disappearTimer++;
+            if (disappearTimer > decalDisappearTime)
+                Graphics.removeRenderable(this);
+        }
+        else
+        {
+            //onko decalID yli maxDecals jäljessä totalDecalsCreatedia
+            //eli ollanko tehty yli maxDecals määrä decaleja tämän decalin luonnin jälkeen
+            //jos niin, niin tämä decali poistoon
+            if ((decalID) < (totalDecalsCreated-maxDecals))
+            {
+                toBeDeleted = true;
+            }
+        }
+        
         
 
     }

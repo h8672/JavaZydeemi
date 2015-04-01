@@ -38,6 +38,8 @@ public class TextRendererFont
         filenameToGlyphMap.put("quote", '"');
         filenameToGlyphMap.put("semicolon", ';');
         filenameToGlyphMap.put("par2", ')');
+        filenameToGlyphMap.put("plus", '+');
+        filenameToGlyphMap.put("equals", '=');
     }
     
     

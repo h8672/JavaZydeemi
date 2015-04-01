@@ -103,6 +103,9 @@ public class Main {
             settings.MSAAEnabled = true;
             settings.MSAASamples = 2;
             settings.shadersEnabled = true;
+            settings.shockwaveSize = 180;
+            settings.shockwaveSpeed = 4.0f;
+            settings.shockwaveDisplaceAmount = -10;
             
             Display.setDisplayMode
         (new DisplayMode(settings.windowWidth,settings.windowHeight));

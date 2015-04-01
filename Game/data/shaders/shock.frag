@@ -27,7 +27,7 @@ void main()
 		
 		
 		
-		if ((dist <= (size+power)) && (dist >= (size - power)) ) 
+		if ((dist <= (size)) && (dist >= (size - power)) ) 
 		{
 			float diff = (dist - size); 
 			diff = (power-abs(diff))/power;

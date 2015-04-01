@@ -26,7 +26,7 @@ public class Bullet extends Projectile {
         this.setVel(attackspeed, rotation);
         this.setHeight(height);
         this.setAttackrange(attackrange);
-        Graphics.registerRenderable(this,Graphics.IntermediateLayer);
+        Graphics.registerRenderable(this,Graphics.BaseLayer);
     }
     
     @Override

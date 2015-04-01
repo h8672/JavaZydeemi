@@ -36,6 +36,17 @@ class ShockWaveData
     public float vel;
 }
 
+class RenderableData
+{
+    public Renderable renderable;
+    public int layer;
+
+    RenderableData(Renderable renderable, int layer)
+    {
+        this.renderable = renderable;
+        this.layer = layer;
+    }
+}
 
 /** Grafiikkasysteemi
  * Pitää sisällään kaiken grafiikan piirtoon liittyvän
@@ -44,8 +55,6 @@ class ShockWaveData
  */
 public class Graphics
 {
-    
-
     private static int MSAASamples;
     private static boolean enableMSAA;
 
@@ -54,6 +63,7 @@ public class Graphics
     private static boolean enableFBO;
     private static boolean allowFBO;
     
+    private static boolean enableShockWaves;
     private static boolean enableShaders;
     private static boolean allowShaders;
     
@@ -95,24 +105,28 @@ public class Graphics
     private static ArrayList<TextRendererFont> fontArray;
     
     private static ArrayList<ImageData> imageDataArray;
+    
+    
     private static HashMap<String,Texture> textureMap;
     private static HashMap<String,Animation> animationMap;
     
     private static HashSet<Renderable> renderableList;
-    private static HashSet<Renderable> intermediateRenderableList;
+    private static HashSet<Renderable> intermediateAdditiveRenderableList;
+    private static HashSet<Renderable> intermediateAlphaRenderableList;
     private static HashSet<Renderable> menuRenderableList;
     
     private static LinkedList<Renderable> toBeDeletedRenderables;
+    private static LinkedList<RenderableData> toBeAddedRenderables;
 
     /** Renderable layer efekteille
      *
      */
-    final public static int IntermediateLayer = 1;
-
+    final public static int IntermediateAdditiveLayer = 1;
+    final public static int IntermediateAlphaLayer = 2;
     /** Renderable layer käyttöliittymälle
      *
      */
-    final public static int MenuLayer = 2;
+    final public static int MenuLayer = 3;
 
     /** Perus renderable layer 
      *
@@ -493,25 +507,19 @@ public class Graphics
         
     }
     
-    /**  käynnistää openGL jutut
-     *
-     * @param WindowW window height
-     * @param WindowH window width
-     * @return returns true if successful
-     */
-    public static boolean init(GraphicsSettings set)
+    private static void initProjection(GraphicsSettings set)
     {
-        //ikkunan koko
-        viewWidth = set.windowWidth;
-        viewHeight = set.windowHeight;
-        
         //asetetaan kuvaruudun projektio
         GL11.glMatrixMode(GL11.GL_PROJECTION);
         GL11.glLoadIdentity();
         //ortograafinen projektio, 2D
         GL11.glOrtho(0, viewWidth, viewHeight, 0 , 1, -1); 
-        
+        //takaisin modelview matriisiin
         GL11.glMatrixMode(GL11.GL_MODELVIEW);
+    }
+    
+    private static void initGLSettings(GraphicsSettings set)
+    {
         GL11.glEnable(GL11.GL_ALPHA_TEST);
         GL11.glAlphaFunc (GL11.GL_GREATER, 0.1f ) ;
 
@@ -526,10 +534,13 @@ public class Graphics
         //Hienoja polygonien piirtoja
         GL11.glHint (GL11.GL_LINE_SMOOTH_HINT, GL11.GL_NICEST);
         GL11.glHint (GL11.GL_POLYGON_SMOOTH_HINT, GL11.GL_NICEST);
-        
-        
+    }
+    
+    private static void initFBORelated(GraphicsSettings set)
+    {
         //voidaanko käyttää framebuffereita
         //(jos koneesi sattuu olemaan viime vuosituhannelta)
+        //ei vaikuta toimivan oikein software opengl modessa
         if(!(GLContext.getCapabilities().GL_EXT_framebuffer_object))
         {
             //kaikki pois, ei mitään kivaa sallita
@@ -554,7 +565,7 @@ public class Graphics
             
             
             enableMSAA = allowMSAA&&set.MSAAEnabled;
-            MSAASamples = Math.min(getMSAAMaxSamples(),set.MSAASamples);
+            MSAASamples = Math.max(Math.min(getMSAAMaxSamples(),set.MSAASamples),0);
                      
             //Framebufferien alustus
             
@@ -640,10 +651,31 @@ public class Graphics
             System.out.println("Shaders disabled");
         if (!allowMSAA)
             System.out.println("Multisampling antialiasing disabled");
-        
-        
         enableShaders = allowShaders&&set.shadersEnabled;
         enableFBO = allowFBO&&set.FBOEnabled;
+        enableShockWaves = enableShaders&&set.shockwaves;
+        shockDisplaceAmount = set.shockwaveDisplaceAmount;
+        shockSize = set.shockwaveSize;
+        shockSpeed = set.shockwaveSpeed;
+    }
+    
+    /**  käynnistää openGL jutut
+     *
+     * @param WindowW window height
+     * @param WindowH window width
+     * @return returns true if successful
+     */
+    public static boolean init(GraphicsSettings set)
+    {
+        //ikkunan koko
+        viewWidth = set.windowWidth;
+        viewHeight = set.windowHeight;
+        
+        initProjection(set);
+        initGLSettings(set);
+        initFBORelated(set);
+        
+        Drawing.init(); //Vertexbuffer objektit sun muut
         
         //perus objektien alustuksia
         imageDataArray = new ArrayList<>();
@@ -651,30 +683,28 @@ public class Graphics
         animationMap = new HashMap<>();
         camera = new Vector2f(0,0);
         
-        //fonttien piirto kuntoon
-        TextRendererFont.init();
         
+        //ja tehdään kasa containereja
         fontArray = new ArrayList<>();
         
-        //ladataan uus fontti
-        TextRendererFont font  = new TextRendererFont();
-        
-        font.load("./data/font");
-        
-        fontArray.add(font);
-        
-        //ja tehdään vihdoin renderableList
         renderableList = new HashSet<>();
-        intermediateRenderableList = new HashSet<>();
+        intermediateAdditiveRenderableList = new HashSet<>();
+        intermediateAlphaRenderableList = new HashSet<>();
         menuRenderableList = new HashSet<>();
         
+        toBeAddedRenderables = new LinkedList<>();
         toBeDeletedRenderables = new LinkedList<>();
         
+        //fonttien piirto kuntoon
+        TextRendererFont.init();
+        //ladataan uus fontti
+        TextRendererFont font  = new TextRendererFont();
+        font.load("./data/font");
+        fontArray.add(font);
         
+        //ladataan dataa (tekstuureja, yms.)
         loadData();
-        
-        
-        
+
         return true;
     }
     
@@ -690,43 +720,29 @@ public class Graphics
     /** Lisää Renderablen piirtolistaan
      * <p>
      *  käytä jokaiselle objekitlle jonka haluat piirrettäväksi
-     * <p>
-     *  älä kutsu Renderablen render() metodista!
      * 
      * @param renderable piirtolistalle lisättävä objekti
      */
     public static void registerRenderable(Renderable renderable)
     {
-        renderableList.add(renderable);
+        toBeAddedRenderables.add(new RenderableData(renderable,BaseLayer));
     }
     
     /** Lisää Renderablen piirtolistaan tietylle tasolle
      * <p>
-     * tiettyjen piirtotasojen numerointi on seuraava: 0 = Graphics.BaseLayer = Alin taso,
-     * peligrafiikka, 1 = Graphics.IntermediateLayer = keskimmäinen taso, kaikki efektit,
-     * 2 = Graphics.MenuLayer = päällimmäinen taso, menuille tarkoitettu
+     * Tiettyjen piirtotasojen numerointi on seuraava: Graphics.BaseLayer = Alin taso,
+     * peligrafiikka, Graphics.IntermediateAdditiveLayer ja Graphics.IntermediateAlphaLayer = keskimmäinen taso, kaikki efektit,
+     * AlphaLayeriin tyypillisesti alpha blendausta käyttävät efektit
+     * Graphics.MenuLayer = päällimmäinen taso, menuille tarkoitettu
      * <p>
      *  käytä jokaiselle objektille jonka haluat piirrettäväksi tietylle tasolle kuten menuobjektit
-     * <p>
-     *  älä kutsu Renderablen render() metodista!
      * 
      * @param renderable piirtolistalle lisättävä objekti
      * @param stage tason numero 0-2
      */
-    public static void registerRenderable(Renderable renderable,int stage)
+    public static void registerRenderable(Renderable renderable,int layer)
     {
-        switch (stage)
-        {
-            case 1:
-                intermediateRenderableList.add(renderable);
-                break;
-            case 2:
-                menuRenderableList.add(renderable);
-                break;
-            default:
-                renderableList.add(renderable);
-        }
-        
+        toBeAddedRenderables.add(new RenderableData(renderable,layer));
     }
     
     /** Poistaa Renderablen piirtolistasta
@@ -861,13 +877,31 @@ public class Graphics
         }
     }
     
-
-    /** Piirtää openGL jutut
-     *
-     */
-    public static void render()
+    private static void updateRenderableLists()
     {
-        //poistetaan poistettavat
+        for (RenderableData data : toBeAddedRenderables)
+        {
+            Renderable renderable = data.renderable;
+            int layer = data.layer;
+            switch (layer)
+            {
+                case IntermediateAdditiveLayer:
+                    intermediateAdditiveRenderableList.add(renderable);
+                    break;
+                case IntermediateAlphaLayer:
+                    intermediateAlphaRenderableList.add(renderable);
+                    break;
+                case MenuLayer:
+                    menuRenderableList.add(renderable);
+                    break;
+                case BaseLayer:
+                    renderableList.add(renderable);
+                    break;
+            }
+        }
+        
+        toBeAddedRenderables.clear();
+        
         for (Renderable removeRen : toBeDeletedRenderables)
         {
             if (renderableList.contains(removeRen))
@@ -875,9 +909,14 @@ public class Graphics
                 renderableList.remove(removeRen);
                 continue;
             }
-            if (intermediateRenderableList.contains(removeRen))
+            if (intermediateAlphaRenderableList.contains(removeRen))
             {
-                intermediateRenderableList.remove(removeRen);
+                intermediateAlphaRenderableList.remove(removeRen);
+                continue;
+            }
+            if (intermediateAdditiveRenderableList.contains(removeRen))
+            {
+                intermediateAdditiveRenderableList.remove(removeRen);
                 continue;
             }
             if (menuRenderableList.contains(removeRen))
@@ -887,7 +926,19 @@ public class Graphics
             }
             
         }
+        
         toBeDeletedRenderables.clear();
+    }
+    
+
+    /** Piirtää openGL jutut
+     *
+     */
+    public static void render()
+    {
+        //poistetaan poistettavat, lisätään lisättävät
+        updateRenderableLists();
+        
         
         //renderöinnin alkujutut
         
@@ -917,11 +968,16 @@ public class Graphics
         //piirretään
         renderRenderables(renderableList);
         
+        //suoritetaan syvyys tarkistus alpha blendatuille objekteille
+        //mutta ei piirretä syvyyspuskuriin
+        GL11.glDepthMask(false);
+        renderRenderables(intermediateAlphaRenderableList);
+        GL11.glDepthMask(true);
         
         
-        
+        //tyhjennetään syvyyspuskuri: additiivisesti blendatut efektit näkyy aina päällimmäisinä
         GL11.glClear(GL11.GL_DEPTH_BUFFER_BIT);
-        renderRenderables(intermediateRenderableList);
+        renderRenderables(intermediateAdditiveRenderableList);
         GL11.glDisable(GL11.GL_DEPTH_TEST);
         //syvyystesti pois häiritsemästä kun käsitellään framebuffereita4
         GL11.glLoadIdentity();
@@ -939,7 +995,7 @@ public class Graphics
             if (enableMSAA) //jos antialising oli päällä, enään ei ole
               GL11.glDisable(GL13.GL_MULTISAMPLE);
 
-            if (enableShaders)
+            if (enableShaders && enableShockWaves)
                 renderShocks();
             else
             {
@@ -982,8 +1038,12 @@ public class Graphics
         renderRenderables(menuRenderableList);
         enableFBO = fboWasEnabled;
 
-        
-        getFont().renderTextCool("RenderableCount: "+Integer.toString(getRenderableCount()),new Vector2f(32,32),2.0f);
+        String text = "RenderableCount: "
+                +Integer.toString(getIntermediateRenderableCount())+" + "
+                +Integer.toString(getMenuRenderableCount())+" + "
+                +Integer.toString(getBaseRenderableCount())+" = "
+                +Integer.toString(getRenderableCount());
+        getFont().renderTextCool(text,new Vector2f(32,32),2.0f);
         GL11.glDisable(GL11.GL_ALPHA_TEST);
         
     }
@@ -1037,26 +1097,17 @@ public class Graphics
      */
     public static void explode(Vector2f pos, float power)
     {
-        if (shaderShockArray.size() >= shaderShockMax-1)
-            return;
-        ShockWaveData sw = new ShockWaveData();
-        sw.pos = pos;
-        sw.size = 0;
-        sw.maxSize = shockSize;
-        sw.vel = shockSpeed;
-        shaderShockArray.add(sw);
-    }
-
-    /** Palauttaa onko glow päällä
-     *
-     * @return tosi, jos glow on päällä
-     */
-    public static boolean isGlowEnabled()
-    {
-        if (!enableFBO)
-            return false;
-        
-        return enableShaders;
+        if (enableShockWaves)
+        {
+            if (shaderShockArray.size() >= shaderShockMax-1)
+                return;
+            ShockWaveData sw = new ShockWaveData();
+            sw.pos = pos;
+            sw.size = 0;
+            sw.maxSize = shockSize;
+            sw.vel = Math.max(0.1f,shockSpeed);
+            shaderShockArray.add(sw);
+        }
     }
 
     private static void loadData()
@@ -1089,7 +1140,7 @@ public class Graphics
      */
     public static int getIntermediateRenderableCount()
     {
-        return intermediateRenderableList.size();
+        return intermediateAlphaRenderableList.size()+intermediateAdditiveRenderableList.size();
     }
     
     /** Palauttaa MenuLayer'n koon
