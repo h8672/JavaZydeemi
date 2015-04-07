@@ -20,15 +20,20 @@ import org.lwjgl.util.vector.Vector2f;
  */
 public class Menu implements Renderable {
     private int x;
-    private ArrayList valinnat;
+    private ArrayList<String> valinnat;
     private float size;
     private boolean wait = true, select = false;
     private boolean visible = true;
+
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
     
     
     public Menu(String otsikko){
         x = 1;
-        valinnat = new ArrayList();
+        valinnat = new ArrayList<>();
         valinnat.add(otsikko);
         Graphics.registerRenderable(this,Graphics.MenuLayer);
     }
@@ -79,22 +84,27 @@ public class Menu implements Renderable {
     
     @Override
     public void render(){
-        float[] color = {1.0f,0.9f,0.6f};
+        
         for(int i = 0; i < this.valinnat.size(); i++){
-            if (i == 0) size = 3.0f;
-            else if(i != x) size = 2.0f;
+            String text = this.valinnat.get(i);
+            Vector2f pos = new Vector2f(160,90*(i+1));
+            float[] color = {1.0f,0.9f,0.6f};
+            float size = 2.0f;
+            
+            if (i == 0) {
+                pos.x += Math.sin(Main.getTime()/55)*25;
+                Graphics.getFont().renderTextExt(text,pos,3.0f,new float[]{1.0f,1.0f,1.0f});
+            }
+            else if(i != x) {
+                Graphics.getFont().renderTextExt(text,pos,size,color);
+            }
             else {
-                size = 2.4f;
+                pos.x += 20;
+                Graphics.getFont().renderTextCool(text,pos,size);
             }
             // teksti, sijainti, koko, väri
-            Graphics.getFont().renderTextExt(
-                    this.valinnat.get(i).toString(),
-                    new Vector2f(160, ((float)Math.sin(Main.getTime()/20))*1.5f+90*(i+1)),
-                    size,
-                    color);
+            
         }
-        
-        
         
         /*
         if (Main.getTime() % 90 > 45)

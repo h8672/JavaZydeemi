@@ -5,8 +5,10 @@
  */
 package Game.graphics;
 
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL20;
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.*;
 import org.lwjgl.util.vector.Vector2f;
 
 /** Piirtoapumetodit sisältävä luokka
@@ -15,6 +17,7 @@ import org.lwjgl.util.vector.Vector2f;
  */
 public class Drawing
 {
+
     /** Piirtää spriten 
      * 
      * @param tex TextureData
@@ -26,9 +29,47 @@ public class Drawing
         GL11.glTranslatef(pos.x,pos.y,0.0f);
         
         bindAndPrintTexture(tex.getBaseImage());
-        
 
         GL11.glPopMatrix();
+    }
+    
+    public static void drawBar(Vector2f pos, float size, float color1[], float color2[],float current, float max)
+    {
+        GL11.glPushMatrix();
+        GL11.glTranslatef(pos.x,pos.y,0.0f);
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        
+        GL11.glScalef(size,4,1);
+        
+        GL11.glColor4f(color1[0],color1[1],color1[2],1.0f);
+        
+        GL11.glDrawArrays(GL11.GL_QUADS, 0, 4);
+        
+        float ratio = current/max;
+        GL11.glScalef(ratio,1,1);
+        
+        GL11.glColor4f(color2[0],color2[1],color2[2],1.0f);
+        
+        GL11.glDrawArrays(GL11.GL_QUADS, 0, 4);
+        
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        GL11.glColor4f(1.0f,1.0f,1.0f,1.0f);
+        GL11.glPopMatrix();
+    }
+    
+    public static void drawLine(Vector2f p1,Vector2f p2)
+    {
+        GL11.glDisableClientState(GL11.GL_VERTEX_ARRAY);
+        GL11.glDisableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glBegin(GL11.GL_LINES);
+        GL11.glVertex2f(p1.x,p1.y);
+        GL11.glVertex2f(p2.x,p2.y);  
+         
+        GL11.glEnd();
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
+        GL11.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
     }
     
     /** Piirtää spriten määrätyllä koolla
@@ -41,27 +82,12 @@ public class Drawing
     {
         GL11.glPushMatrix();
         GL11.glTranslatef(pos.x,pos.y,0.0f);
-               
+
         GL11.glBindTexture(GL11.GL_TEXTURE_2D,tex.getBaseImage().getGLName());
         
         GL11.glScalef(size.x,size.y,1.0f);
         
-        GL11.glBegin(GL11.GL_QUADS);
-        
-        GL11.glTexCoord2f(0,0);
-        GL11.glVertex2f(0,0);
-        
-        GL11.glTexCoord2f(1,0);
-        GL11.glVertex2f(1f,0f);
-        
-        GL11.glTexCoord2f(1,1);
-        GL11.glVertex2f(1f,1f);
-        
-        GL11.glTexCoord2f(0,1);
-        GL11.glVertex2f(0f,1f);
-
-        GL11.glEnd();
-        
+        GL11.glDrawArrays(GL11.GL_QUADS, 0, 4);
 
         GL11.glPopMatrix();
     }
@@ -75,23 +101,14 @@ public class Drawing
     {
         GL11.glPushMatrix();
         
-        GL11.glTranslatef(pos.x,pos.y,0.0f);
+        GL11.glTranslatef(pos.x-size,pos.y-size,0.0f);
         
-        GL11.glScalef(size,size,1.0f);
+        GL11.glScalef(size*2,size*2,1.0f);
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         GL11.glColor4f(1.0f,0.0f,1.0f,1.0f);
-        GL11.glBegin(GL11.GL_QUADS);
         
-        
-        GL11.glVertex2f(-1,-1);
-        
-        GL11.glVertex2f(1,-1);
-        
-        GL11.glVertex2f(1,1);
-        
-        GL11.glVertex2f(-1,1);
+        GL11.glDrawArrays(GL11.GL_QUADS, 0, 4);
 
-        GL11.glEnd();
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         GL11.glColor4f(1.0f,1.0f,1.0f,1.0f);
         GL11.glPopMatrix();
@@ -124,7 +141,6 @@ public class Drawing
 
         bindAndPrintCenteredTexture(tex.getBaseImage());
 
-
         GL11.glPopMatrix();
     }
     
@@ -139,7 +155,6 @@ public class Drawing
         GL11.glPushMatrix();
         GL11.glTranslatef(pos.x,pos.y,0.0f);
         GL11.glRotatef(rot,0,0,-1);
-        
 
         bindAndPrintCenteredTexture(tex.getBaseImage());
 
@@ -214,25 +229,13 @@ public class Drawing
      */
     public static void bindAndPrintCenteredTexture(ImageData tex)
     {
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D,tex.getGLName());
-
-        GL11.glScalef(tex.getWidth(), tex.getHeight(), 1.0f);
-        
-        GL11.glBegin(GL11.GL_QUADS);
-        
-        GL11.glTexCoord2f(0,0);
-        GL11.glVertex2f(-0.5f,-0.5f);
-        
-        GL11.glTexCoord2f(1,0);
-        GL11.glVertex2f(0.5f,-0.5f);
-        
-        GL11.glTexCoord2f(1,1);
-        GL11.glVertex2f(0.5f,0.5f);
-        
-        GL11.glTexCoord2f(0,1);
-        GL11.glVertex2f(-0.5f,0.5f);
-        
-        GL11.glEnd();
+        if (tex != null)
+        {
+            GL11.glBindTexture(GL11.GL_TEXTURE_2D,tex.getGLName());
+            GL11.glScalef(tex.getWidth(), tex.getHeight(), 1.0f);
+            GL11.glTranslatef(-0.5f,-0.5f, 0.0f);
+            GL11.glDrawArrays(GL11.GL_QUADS, 0, 4);
+        }
     }
     
     /** Piirtää teksturoidun neliön
@@ -241,26 +244,11 @@ public class Drawing
      */
     public static void bindAndPrintTexture(ImageData tex)
     {
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D,tex.getGLName());
-
-        GL11.glScalef(tex.getWidth(), tex.getHeight(), 1.0f);
-        
-        GL11.glBegin(GL11.GL_QUADS);
-        
-        GL11.glTexCoord2f(0,0);
-        GL11.glVertex2f(0,0);
-        
-        GL11.glTexCoord2f(1,0);
-        GL11.glVertex2f(1f,0f);
-        
-        GL11.glTexCoord2f(1,1);
-        GL11.glVertex2f(1f,1f);
-        
-        GL11.glTexCoord2f(0,1);
-        GL11.glVertex2f(0f,1f);
-        
-        GL11.glEnd();
-
+        if (tex != null)
+        {
+            GL11.glBindTexture(GL11.GL_TEXTURE_2D,tex.getGLName());
+            GL11.glScalef(tex.getWidth(), tex.getHeight(), 1.0f);
+            GL11.glDrawArrays(GL11.GL_QUADS, 0, 4);
+        }
     }
-    
 }

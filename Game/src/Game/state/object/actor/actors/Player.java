@@ -33,7 +33,6 @@ public class Player extends Actors {
         this.setHP(100); // How much dmg can take
         this.setVisible(true);
         this.setArmor(new Clothes());
-        this.setWeapon(new Flamethrower());
         Graphics.registerRenderable(this, Graphics.BaseLayer);
     }
     

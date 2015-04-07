@@ -60,7 +60,7 @@ public abstract class Projectile implements Attack, Renderable {
         return this.velocity;
     }
     @Override
-    public float hit(){ // I hit something!
+    public float hit(boolean stop){ // I hit something!
         attackrange = 0;
         return this.DMG;
     }

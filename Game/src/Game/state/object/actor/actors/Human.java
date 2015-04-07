@@ -25,6 +25,7 @@ public class Human extends Actors {
         Graphics.registerRenderable(this, Graphics.BaseLayer);
         this.setImage("Human");
         this.setPosition(position); // Position in map
+        this.setSize(new Vector2f(20,20));
         this.setHeight(height); // How high in the screen
         this.setRotation(0); // 2 PI rot / 360 degree
         this.setVelocity(new Vector2f(0,0)); // x / t
@@ -64,17 +65,13 @@ public class Human extends Actors {
         this.colorArms = colorArms;
     }
 
-    @Override
-    public void update()
-    {   
-        
-    }
 
     @Override
     public void render(){
         Drawing.enableColorizer(colorTorso, colorArms, colorHead);
         Drawing.drawSpriteCentered(Graphics.getTexture("tyyppi1"), this.getPosition(),this.getRotation());
         Drawing.disableColorizer();
+        Drawing.drawBar(this.getPosition(), this.getSize().length(), new float[] {0f, 0f, 0f}, new float[] {0.6f, 1.5f, 0f}, this.getHP(), 100);
     }
 
 }

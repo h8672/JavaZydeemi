@@ -38,6 +38,8 @@ public class TextRendererFont
         filenameToGlyphMap.put("quote", '"');
         filenameToGlyphMap.put("semicolon", ';');
         filenameToGlyphMap.put("par2", ')');
+        filenameToGlyphMap.put("plus", '+');
+        filenameToGlyphMap.put("equals", '=');
     }
     
     
@@ -230,7 +232,7 @@ public class TextRendererFont
         }
         float getOffY(int CharNum)
         {
-            return (float) -Math.abs(Math.cos(CharNum/offShiftDiv+Main.getTime()/timeDivOff))*7;
+            return (float) -Math.abs(Math.cos(CharNum/offShiftDiv+Main.getTime()/timeDivOff))*2;
         }
         float[] getColor(int CharNum)
         {

@@ -8,7 +8,7 @@ package Game.state.item.equipment;
 
 import Game.state.GameState;
 import Game.state.item.Weapon;
-import game.state.item.equipment.projectiles.Bullet;
+import Game.state.item.equipment.projectiles.Flame;
 import org.lwjgl.util.vector.Vector2f;
 
 /**
@@ -18,7 +18,7 @@ import org.lwjgl.util.vector.Vector2f;
 public class Flamethrower extends Weapon {
     public Flamethrower(){
         this.setName("Flamethrower");
-        this.setDMG(20);
+        this.setDMG(25);
         this.setAttackrange(150);
         this.setAttackspeed(10);
         this.setSpeed(10);
@@ -30,7 +30,7 @@ public class Flamethrower extends Weapon {
 
     @Override
     public void projectile(Vector2f position, float height, float rotation) {
-        GameState.addAttack(new Bullet(position, height, rotation, this.getSpeed(), this.getAttackrange(), this.getDMG()));
+        GameState.addAttack(new Flame(position, height, rotation, this.getSpeed(), this.getAttackrange(), this.getDMG()));
     }
     
 }

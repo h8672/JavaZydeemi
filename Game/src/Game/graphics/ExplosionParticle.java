@@ -8,7 +8,7 @@ package Game.graphics;
 import Game.Main;
 import org.lwjgl.util.vector.Vector2f;
 
-/** Räjähdysefektin välähdys
+/** Räjähdysefektin (pikainen) välähdys
  *
  * @author MacodiusMaximus
  */
@@ -55,7 +55,7 @@ public class ExplosionParticle extends ParticleFX
      * <p>
      * Älä kutsu renderablen render() metodista
      * <p>
-     * lisää partikkelin Graphics.IntermediateLayer Renderable listaan
+     * lisää partikkelin Graphics.IntermediateAdditiveLayer Renderable listaan
      *
      * @param size partikkelin koko
      */
@@ -64,7 +64,7 @@ public class ExplosionParticle extends ParticleFX
         pos = new Vector2f();
         scale = new Vector2f(size,size);
         tex = Graphics.getTexture("explosion1");
-        Graphics.registerRenderable(this,Graphics.IntermediateLayer);
+        Graphics.registerRenderable(this,Graphics.IntermediateAdditiveLayer);
         rotation = Main.randomFloat()*360;
         
     }

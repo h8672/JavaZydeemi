@@ -17,7 +17,7 @@ import org.lwjgl.util.vector.Vector2f;
 public class Pistol extends Weapon {
     public Pistol(){
         this.setName("Pistol"); // name
-        this.setDMG(20); // how much dmg weapon does
+        this.setDMG(40); // how much dmg weapon does
         this.setAttackrange(600); // how far attacks will go
         this.setAttackspeed(20); // how many attacks per second
         this.setSpeed(10); //Visual speed

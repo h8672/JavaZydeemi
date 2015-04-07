@@ -6,7 +6,9 @@
 package Game;
 
 import Game.graphics.Graphics;
+import static Game.graphics.Graphics.loadTexture;
 import Game.graphics.GraphicsSettings;
+import Game.input.Input;
 import Game.menu.Menu;
 import Game.state.GameState;
 import java.util.Random;
@@ -30,7 +32,10 @@ public class Main {
      */
     private static Random randomizer;
     private static int time;
-    
+    private static int state;
+    private static Menu mainMenu;
+    private static Menu options;
+    private static GameState game;
     public static int randomInt() {
         return randomizer.nextInt();
     }
@@ -45,64 +50,135 @@ public class Main {
 
     public static void main(String[] args) {
         init();
-        menu();
+        game = new GameState();
+        state = 1;
+        while (state != 0)
+        {
+            switch (state)
+            {
+                case 1:
+                case 2:
+                    menu();
+                    break;
+
+                case 3:
+                    gameLoop();
+                    break;
+                default:
+                    break;
+            }
+            if (Input.getKeyPressed(Keyboard.KEY_ESCAPE))
+            {
+                if (state == 3)
+                    state = 1;
+            }
+            
+            render();
+            
+            
+            if (Display.isCloseRequested())
+                state = 0;
+        }
         cleanUp();
     }
     
-    private static void menu(){
+    private static void initMenu()
+    {
         // Menun alustus
-        Menu menu = new Menu("Woot gaming!");
+        mainMenu = new Menu("Woot gaming!");
         // Menun vaihtoehtojen lisäys
-        menu.addChoice("Aloita peli");
-        menu.addChoice("Lopeta");
-        // Ikkunan otsikon muutos
-        Display.setTitle("Main menu");
+        mainMenu.addChoice("Aloita peli");
+        mainMenu.addChoice("Asetukset");
+        mainMenu.addChoice("Lopeta");
         
-        while(menu.loop()){
-            render();
-            if(Keyboard.isKeyDown(KEY_UP)){
-                menu.moveUP();
-            }
-            else if(Keyboard.isKeyDown(KEY_DOWN)){
-                menu.moveDOWN();
-            }
-            //Valinta ehto
-            else if(Keyboard.isKeyDown(KEY_RETURN)){
-                //Removes menu from renderables and continues to switch-case
-                Graphics.removeRenderable(menu);
-                switch(menu.chosenone()){
-                    case 1:
-                        gameLoop();
-                        break;
-                    case 2:
-                        break;
-                    default:
-                        break;
-                }
-                menu.close();
-            }
-            // Sulkemis ehto
-            else if(Keyboard.isKeyDown(
-                    Keyboard.KEY_ESCAPE) || Display.isCloseRequested()
-                    ){
-                menu.close();
-            }
-            else;
+        mainMenu.setVisible(true);   
+        
+        
+        options = new Menu("Options");
+        
+        
+        options.addChoice("-");
+        options.addChoice("-");
+        options.addChoice("Takaisin");
+        
+        updateOptionsMenuStrings();
+
+        options.setVisible(false);    
+    }
+    
+    private static void updateOptionsMenuStrings()
+    {
+        String s = new String("Anti-aliasing:");
+        if (Graphics.getMSAAEnabled())
+            s = s + " Enabled x "+Graphics.getMSAASamples();
+        else
+            s = s + " Disabled";
+        options.chosenlist().set(1, s);
+        
+        s = new String("Shockwaves:");
+        if (Graphics.getShockWavesEnabled())
+            s = s + " Enabled";
+        else
+            s = s + " Disabled";
+        
+        options.chosenlist().set(2, s);
+        
+    }
+    
+    
+    private static void menu()
+    {
+        Menu menu;
+        switch (state)
+        {
+            case 1:
+                menu = mainMenu;
+                break;
+            case 2:
+                menu = options;
+                break;
+            default:
+                state = 0;
+                return;
         }
+        menu.setVisible(true);
+
+        if(Input.getKeyPressed(Keyboard.KEY_UP)){
+            menu.moveUP();
+        }
+        else if(Input.getKeyPressed(KEY_DOWN)){
+            menu.moveDOWN();
+        }
+        //Valinta ehto
+        
+        if(Input.getKeyPressed(KEY_RETURN))
+        {
+            switch (state)
+            {
+                case 1:
+                    updateMainMenu();
+                    break;
+                case 2:
+                    updateOptions();
+                    break;
+                default:
+                    state = 0;
+                    return;
+            }
+        }
+        
+        if (Input.getKeyPressed(Keyboard.KEY_ESCAPE))
+            state = 0;
+           
     }
     
     private static void init(){
+        
         randomizer = new Random();
         
         try {
-            GraphicsSettings settings = new GraphicsSettings();
-            settings.windowWidth =1280;
-            settings.windowHeight =800;
-            settings.FBOEnabled = true;
-            settings.MSAAEnabled = true;
-            settings.MSAASamples = 2;
-            settings.shadersEnabled = true;
-            
+            GraphicsSettings settings = Graphics.loadSettings();
+
             Display.setDisplayMode
         (new DisplayMode(settings.windowWidth,settings.windowHeight));
             
@@ -110,41 +186,27 @@ public class Main {
             Display.setVSyncEnabled(true);
             
             Graphics.init(settings);
+            
+            loadTexture("./data/tyyppi.png","tyyppi1",false);
+            
         } catch (LWJGLException ex) {
             System.out.println("Test");
         }
-        Input(); //lataa ohjaimet
+        Input.init();
+        initMenu();
     }
-    
-    private static void Input(){
-        try {
-            Keyboard.create();
-        } catch (LWJGLException ex) {
-            System.out.println("Näppäimistöä ei löytynyt");
-        }
-        try {
-            Mouse.create();
-        } catch (LWJGLException ex) {
-            System.out.println("Hiirtä ei löytynyt");
-        }
-        
-    }
+
     
     private static void gameLoop(){
-        GameState gamestate = new GameState();
-        
-        while(!Display.isCloseRequested()){
-            
-            gamestate.update();
-            render();
-        }
+        game.update(); 
     }
     
     private static void render(){
-            time++;
-            Graphics.render();
-            Display.update();
-            Display.sync(60);
+        Input.update();
+        Graphics.render();
+        Display.update();
+        Display.sync(60);
+        time++;
     }
     
     private static void cleanUp(){
@@ -152,6 +214,64 @@ public class Main {
         //input.destroy();
         Keyboard.destroy();
         Mouse.destroy();
+        Graphics.saveSettings();
     }
-    
+
+    private static void updateMainMenu() {
+        
+        switch (mainMenu.chosenone())
+        {
+            case 1:
+                state = 3;
+                break;
+            case 2:
+                state = 2;
+                break;
+            default:
+                state = 0;
+                break;
+                
+        }
+        
+        mainMenu.setVisible(false);
+    }
+
+    private static void updateOptions() {
+        
+        switch (options.chosenone())
+        {
+            case 1:
+                
+                if (Graphics.getMSAAEnabled())
+                {
+                    int d = Graphics.getMSAASamples();
+                    if (d == Graphics.getMSAAMaxSamples())
+                    {
+                        Graphics.setMSAAEnabled(false);
+                    }
+                    else
+                    {
+                        if (d == 0)
+                            d = 1;
+                        Graphics.setMSAASamples(d*2);
+                    }
+                }
+                else
+                {
+                    Graphics.setMSAASamples(2);
+                    Graphics.setMSAAEnabled(true);
+                }
+                break;
+            case 2:
+                Graphics.setShockWavesEnabled(!Graphics.getShockWavesEnabled());
+                break;
+            default:
+                options.setVisible(false);
+                state = 1;
+                break;
+
+        }
+        updateOptionsMenuStrings();
+        
+    }
 }

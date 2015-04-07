@@ -5,8 +5,10 @@
  */
 package Game.state.object.actor;
 
+import Game.graphics.Graphics;
 import Game.graphics.Renderable;
 import Game.state.Attack;
+import Game.state.GameState;
 import Game.state.item.Armor;
 import Game.state.item.Usable;
 import Game.state.item.Weapon;
@@ -137,7 +139,10 @@ public abstract class Actors implements Actor, Renderable {
     }
     @Override
     public float defend(Attack attack) {
-        return this.HP += armor.getAmount() - attack.hit();
+        float dmg = armor.getAmount() - attack.hit(false);
+        System.out.println("dealt damage: " + dmg);
+        if(dmg > 0) this.HP -= dmg;
+        return this.HP;
     }
     @Override
     public float defend(Usable usable) {
@@ -151,4 +156,12 @@ public abstract class Actors implements Actor, Renderable {
         return position;
     }
     
+    @Override
+    public void update()
+    {   
+        if(this.HP <= 0){
+            Graphics.removeRenderable(this);
+            GameState.delActor(this);
+        }
+    }
 }

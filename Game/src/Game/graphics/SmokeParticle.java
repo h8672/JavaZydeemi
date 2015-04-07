@@ -8,11 +8,11 @@ package Game.graphics;
 import Game.Main;
 import org.lwjgl.util.vector.Vector2f;
 
-/** Tuliefekti
+/** Savuefekti
  *
  * @author MacodiusMaximus
  */
-public class FireParticle extends ParticleFX
+public class SmokeParticle extends ParticleFX
 {
     private Vector2f pos;
     private Vector2f vel;
@@ -21,10 +21,7 @@ public class FireParticle extends ParticleFX
     private Vector2f scale;
     private float rotation = 0;
     private int maxTimer;
-    private boolean spawnSmoke = true;
-
-    
-    private static int smokeAmount = 3;
+    private int delay = 0;
     
     /** Palauttaa nopeuden
      *
@@ -74,36 +71,31 @@ public class FireParticle extends ParticleFX
         this.pos = pos;
     }
     
-    /** Asettaa, spawnaako liekki savua
-     *
-     * @param spawnSmoke
-     */
-    public void setSpawnSmoke(boolean spawnSmoke) {
-        this.spawnSmoke = spawnSmoke;
-    }
-    
     private Animator anim;
     private int timer;
 
-    /** FireParticle constructor
+    /** SmokeParticle constructor
      * <p>
      * Älä kutsu renderablen render() metodista
      * <p>
-     * lisää partikkelin Graphics.IntermediateAdditiveLayer Renderable listaan
+     * lisää partikkelin Graphics.IntermediateAlphaLayer Renderable listaan
      *
      */
-    public FireParticle ()
+    public SmokeParticle ()
     {
         vel = new Vector2f();
         pos = new Vector2f();
         
-        float fscale = 1.7f-Main.randomFloat()*1.4f ;
+        float fscale = 2.7f-Main.randomFloat()*1.4f ;
         scale = new Vector2f(fscale,fscale);
+        
         anim = new Animator(Graphics.getAnimation("fieryFlames"));
-        Graphics.registerRenderable(this,Graphics.IntermediateAdditiveLayer);
-        timer = Math.abs(Main.randomInt())%44+4;
+        Graphics.registerRenderable(this,Graphics.IntermediateAlphaLayer);
+        timer = Math.abs(Main.randomInt())%44+34;
         rotation = Main.randomFloat()*360;
         maxTimer = timer;
+        //mahdollinen muutaman sekunnin kymmenyksen viive
+        delay = Math.abs(Main.randomInt()%10);
     }
 
     @Override
@@ -113,76 +105,46 @@ public class FireParticle extends ParticleFX
 
     @Override
     public float getDepth() {
-        return 0;
+        return 50;
     }
 
     @Override
     public void render()
     {
-        
+        if (delay > 0)
+        {
+            delay--;
+            return;
+        }
         Texture tex = anim.getTexture();
         
         float smokeMul = (float)timer/maxTimer;
-        if (maxTimer < 20)
-            smokeMul += ((20-maxTimer)/20);
-        if (smokeMul > 1)
-            smokeMul = 1.0f;
+        
+        if (smokeMul > 0.8)
+            smokeMul = 1.0f-(smokeMul-0.8f)*5;
         if (smokeMul < 0.0)
             smokeMul = 0.0f;
         
-        float dSmoked = smokeMul*smokeMul;
-        float[] color = new float[]{1.0f*smokeMul,1.0f*dSmoked,1.0f*dSmoked,1.0f - (0.5f*smokeMul)};
+        smokeMul/=2;
         
+        float[] color = new float[]{0.05f,0.075f,0.1f,smokeMul};
         
-       
-        Drawing.drawSpriteCenteredAdditive(tex, pos,rotation,scale, color);
-        color[3] = 0.5f-smokeMul/2;
         Drawing.drawSpriteCentered(tex, pos,rotation,scale, color);
+        
         
         anim.advance();
         timer--;
         if (timer == 0)
         {
             anim = new Animator(Graphics.getAnimation("flameOut"));
-            if (spawnSmoke)
-            {
-                int d = Main.randomInt()%smokeAmount; 
-                float smokeReach = 32;
-                for (int i = 0; i < d; i++)
-                {
-                    Vector2f p = new Vector2f(pos);
-                    p.x += smokeReach*Main.randomFloat()-smokeReach/2;
-                    p.y += smokeReach*Main.randomFloat()-smokeReach/2;
-
-                    Vector2f s = new Vector2f(scale);
-                    s.x *= 0.96+1.55*Main.randomFloat();
-                    s.y *= 0.96+1.55*Main.randomFloat();
-                    SmokeParticle part = new SmokeParticle();
-                    part.setPos(p);
-                    part.setScale(s);
-
-                }
-            }
-        }
-        if (spawnSmoke)
-        {
-            if (Main.randomInt()%32 == 31)
-            {
-                Vector2f s = new Vector2f(scale);
-                s.x *= 0.96+0.55*Main.randomFloat();
-                s.y *= 0.96+0.55*Main.randomFloat();
-                SmokeParticle part = new SmokeParticle();
-                part.setPos(pos);
-                part.setScale(s);
-            }
         }
         
-        float velDif = 0.6f;
+        float velDif = 0.1f;
         vel.x += (Main.randomFloat()-0.5)*velDif;
         vel.y += (Main.randomFloat()-0.5)*velDif;
         
         
-        float maxVel = 1.0f;
+        float maxVel = 0.4f;
         Vector2f d = new Vector2f();
         vel.normalise(d);
         
@@ -193,15 +155,12 @@ public class FireParticle extends ParticleFX
         pos.x += vel.x;
         pos.y += vel.y;
         
-        scale.x *= 0.96+0.05*Main.randomFloat();
-        scale.y *= 0.96+0.05*Main.randomFloat();
+        scale.x *= 0.98;
+        scale.y *= 0.98;
         
-        rotation += Main.randomFloat()*80-40;
+        rotation += Main.randomFloat()*10-5;
         if (anim.hasReachedEnd())
-        {
             Graphics.removeRenderable(this);
-        }
-        
         
     }
     

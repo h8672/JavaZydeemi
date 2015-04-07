@@ -15,6 +15,34 @@ import org.lwjgl.util.vector.Vector2f;
 public class CollisionDetection
 {
 
+    public static CollisionDetectionResult checkCircleCollision(Vector2f center1, float radius1, Vector2f center2, float radius2){
+        CollisionDetectionResult cdr = new CollisionDetectionResult();
+        
+        Vector2f vector = new Vector2f();
+        cdr.fix = vector;
+        if(radius1 >= radius2){
+            vector.x = center1.x - center2.x;
+            vector.y = center1.y - center2.y;
+            if(vector.length() <= radius1)
+                cdr.found = true;
+            else
+                cdr.found = false;
+        }
+        else if(radius1 < radius2){
+            vector.x = center2.x - center1.x;
+            vector.y = center2.y - center1.y;
+            if(vector.length() <= radius2)
+                cdr.found = true;
+            else
+                cdr.found = false;
+        }
+        else{
+            cdr.found = false;
+        }
+        
+        return cdr;
+    }
+    
     /** Suorittaa törmäyksentarkistuksen ympyrän ja Map olion välillä.
      *
      * @param center tarkistettavan ympyrän keskipiste
@@ -102,6 +130,36 @@ public class CollisionDetection
         }
         cdr.found = found;
         cdr.fix = new Vector2f(nc.x-center.x,nc.y-center.y);
+        return cdr;
+    }
+    
+    /** Suorittaa törmäyksentarkistuksen pisteen ja Map olion välillä.
+     *
+     * @param center tarkistettavan pisteen sijainti
+     * @param map karttaa, mitä vasten törmäys testataan
+     * @return CollisionDetectionResult
+     */
+    public static CollisionDetectionResult checkPointCollisionWithMap(Vector2f center, Map map)
+    {
+        CollisionDetectionResult cdr = new CollisionDetectionResult();
+        float mSize = (float)map.getTileSize();
+        
+        Vector2f tPos = new Vector2f();
+        tPos.x = center.x%mSize;
+        tPos.y = center.y%mSize;
+        
+        int cx,cy;
+        cx = (int)(center.x/mSize);
+        cy = (int)(center.y/mSize);
+        
+        if (map.getTileCollision(cx,cy)) //löytyi törmäys
+        {
+            cdr.fix = new Vector2f(0,0);
+            cdr.found = true;
+            return cdr;
+        }
+        
+        cdr.found = false;
         return cdr;
     }
     

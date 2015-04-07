@@ -14,7 +14,7 @@ import org.lwjgl.util.vector.Vector2f;
 public interface Attack {
     public Vector2f getPos(); // Where are you?
     public Vector2f getVel(); // When will you come?
-    public float hit(); // I hit something!
+    public float hit(boolean stop); // I hit something!
     public void update(); // I hit something!
     public void move(); // if flies!
 }

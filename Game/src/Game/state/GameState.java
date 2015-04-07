@@ -7,6 +7,8 @@ package Game.state;
 
 import Game.Main;
 import Game.state.event.Event;
+import Game.state.item.equipment.Flamethrower;
+import Game.state.item.equipment.Pistol;
 import Game.state.object.GameObject;
 import Game.state.object.actor.Actor;
 import Game.state.object.actor.actors.Human;
@@ -38,6 +40,7 @@ public class GameState {
         player.setImage("tyyppi1");
         player.setSize(new Vector2f(20,20));
         player.setRotation(60);
+        player.setWeapon(new Pistol());
         actors.add(player);
         map = new Map(20,12);
         
@@ -118,20 +121,21 @@ public class GameState {
             
             if (cdr.found)
             {
-                attack.hit();
+                attack.hit(true);
                 cdr.found = false;
             }
             
             for(Actor actor : list){
                 Actor act = actor;
-                /*
+                
                 //keskustan sijainti, ympärysmitta r, viivan sijainti1, viivan sijainti2
-                cdr = CollisionDetection.circleLineCollision(act.getPosition(), act.getSize().length()/2, pos1, pos2);
+                cdr = CollisionDetection.checkCircleCollision(new Vector2f(act.getPosition()), act.getSize().length()/2, attack.getPos(), 2.0f);
                 
                 if(cdr.found == true){
-                    actor.defend(attack);
+                    System.out.println(actor.defend(attack));
+                    
                 }
-                */
+                
             }
             
         }
