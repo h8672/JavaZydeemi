@@ -5,9 +5,7 @@
  */
 package Game.state.object.actor.actors;
 
-import Game.Main;
 import Game.graphics.Drawing;
-import Game.graphics.FireParticle;
 import Game.graphics.Graphics;
 import Game.state.item.equipment.Clothes;
 import Game.state.item.equipment.Pistol;

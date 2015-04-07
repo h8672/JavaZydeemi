@@ -5,6 +5,7 @@
  */
 package Game.state.item;
 
+import Game.Main;
 import org.lwjgl.util.vector.Vector2f;
 
 /**
@@ -14,9 +15,13 @@ import org.lwjgl.util.vector.Vector2f;
 public abstract class Weapon implements Equipment { // implements event (burning, explosion, freezing and so on...)
     private String name;
     private float DMG, attackrange, attackspeed, cone; // cone like part of circle, piece of cake and so on...
-    private float reloadtime, ammunation, clipsize; // ammunation stuff
+    private float reloadtime, ammunation, clipsize, speed; // ammunation stuff
+    private float time;
     boolean equip;
-    
+
+    public float getSpeed() {
+        return speed;
+    }
     public String getName() {
         return name;
     }
@@ -42,6 +47,9 @@ public abstract class Weapon implements Equipment { // implements event (burning
         return clipsize;
     }
 
+    public void setSpeed(float speed) {
+        this.speed = speed;
+    }
     public void setName(String name) {
         this.name = name;
     }
@@ -67,7 +75,16 @@ public abstract class Weapon implements Equipment { // implements event (burning
         this.clipsize = clipsize;
     }
     
-    public abstract void attack(Vector2f position, float height, float rotation);
+    public abstract void projectile(Vector2f position, float height, float rotation);
+    
+    public void attack(Vector2f position, float height, float rotation){
+        if(ammunation > 0 && Main.getTime()  >= time + this.attackspeed){
+            ammunation--;
+            this.projectile(position, height, rotation - cone/2 + (float)((Math.random() * cone)));
+            time = Main.getTime();
+        }
+        if(Main.getTime() >= time + this.reloadtime && ammunation == 0) this.ammunation = this.clipsize;
+    }
     
     
     @Override

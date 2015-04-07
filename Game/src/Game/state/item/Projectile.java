@@ -6,12 +6,10 @@
 package Game.state.item;
 
 import Game.graphics.Graphics;
-import Game.graphics.ParticleEffects;
 import Game.graphics.Renderable;
 import Game.state.Attack;
 import Game.state.GameState;
 import Game.state.event.Event;
-import Game.state.event.events.Explosion;
 import org.lwjgl.util.vector.Vector2f;
 
 /**
@@ -22,7 +20,6 @@ public abstract class Projectile implements Attack, Renderable {
     private String name;
     private Vector2f position, velocity;
     private float attackrange, height, DMG;
-    private float tick;
     private Event event;
     
     public void setName(String name){

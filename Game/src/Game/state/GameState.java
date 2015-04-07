@@ -27,6 +27,7 @@ public class GameState {
     private Player player;
     private ArrayList<AI> AIlist;
     private Map map;
+    
     public GameState(){
         objects = new ArrayList();
         AIlist = new ArrayList();
@@ -34,6 +35,8 @@ public class GameState {
         attacks = new ArrayList();
         events = new ArrayList();
         player = new Player(new Vector2f(500,300), 20);
+        player.setImage("tyyppi1");
+        player.setSize(new Vector2f(20,20));
         player.setRotation(60);
         actors.add(player);
         map = new Map(20,12);
@@ -103,10 +106,12 @@ public class GameState {
         }
         
         ArrayList<Attack> list2 = new ArrayList(attacks);
-        
         for(Attack attack : list2){
+            Vector2f pos1, pos2; // ampumalinja
             attack.update();
+            pos1 = attack.getPos();
             attack.move();
+            pos2 = attack.getPos();
             
             //argumentit: checkCircleCollisionWithMap(pallon keskipiste, pallon säde, kartta)
             CollisionDetectionResult cdr = CollisionDetection.checkCircleCollisionWithMap(attack.getPos(), 2, map);
@@ -114,7 +119,21 @@ public class GameState {
             if (cdr.found)
             {
                 attack.hit();
+                cdr.found = false;
             }
+            
+            for(Actor actor : list){
+                Actor act = actor;
+                /*
+                //keskustan sijainti, ympärysmitta r, viivan sijainti1, viivan sijainti2
+                cdr = CollisionDetection.circleLineCollision(act.getPosition(), act.getSize().length()/2, pos1, pos2);
+                
+                if(cdr.found == true){
+                    actor.defend(attack);
+                }
+                */
+            }
+            
         }
         
         for(Event event : events){

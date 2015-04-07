@@ -9,6 +9,7 @@ package game.state.object.actor.actors;
 import Game.graphics.Drawing;
 import Game.graphics.Graphics;
 import Game.state.item.equipment.Clothes;
+import Game.state.item.equipment.Flamethrower;
 import Game.state.item.equipment.Pistol;
 import Game.state.object.actor.Actors;
 import org.lwjgl.input.Keyboard;
@@ -23,7 +24,6 @@ import org.lwjgl.util.vector.Vector2f;
 public class Player extends Actors {
     
     public Player(Vector2f position, float height) {
-        this.setImage("Human");
         this.setPosition(position); // Position in map
         this.setHeight(height); // How high in the screen
         this.setRotation(0); // 2 PI rot / 360 degree
@@ -33,7 +33,7 @@ public class Player extends Actors {
         this.setHP(100); // How much dmg can take
         this.setVisible(true);
         this.setArmor(new Clothes());
-        this.setWeapon(new Pistol());
+        this.setWeapon(new Flamethrower());
         Graphics.registerRenderable(this, Graphics.BaseLayer);
     }
     
@@ -67,7 +67,7 @@ public class Player extends Actors {
 
     @Override
     public void render() {
-        Drawing.drawSpriteCentered(Graphics.getTexture("tyyppi1"), this.getPosition(),this.getRotation());
+        Drawing.drawSpriteCentered(Graphics.getTexture(this.getImage()), this.getPosition(),this.getRotation());
     }
 
 }

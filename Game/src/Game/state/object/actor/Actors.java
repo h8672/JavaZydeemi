@@ -18,6 +18,7 @@ import org.lwjgl.util.vector.Vector2f;
  */
 public abstract class Actors implements Actor, Renderable {
     private Vector2f position, size, velocity;
+    private Vector2f barrel;
     private float rotation, height, friction, weight, HP;
     private String Image;
     private boolean visible;
@@ -121,11 +122,18 @@ public abstract class Actors implements Actor, Renderable {
     public float getDepth(){
         return this.height;
     }
+    public Vector2f barrelpos(){
+        barrel = new Vector2f();
+        barrel.setX( -this.size.length()*(float)Math.sin(Math.toRadians(rotation)) + position.getX());
+        barrel.setY( -this.size.length()*(float)Math.cos(Math.toRadians(rotation)) + position.getY());
+        return barrel;
+    }
+    
     
     //Actor methods
     @Override
     public void attack(){
-        this.weapon.attack(this.position, this.height, this.rotation);
+        this.weapon.attack(this.barrelpos(), this.height, this.rotation);
     }
     @Override
     public float defend(Attack attack) {

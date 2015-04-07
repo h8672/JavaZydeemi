@@ -94,6 +94,8 @@ public class Menu implements Renderable {
                     color);
         }
         
+        
+        
         /*
         if (Main.getTime() % 90 > 45)
             Graphics.getFont().renderTextExt("Lisaa menutekstia!!!!!", new Vector2f(((float)Math.sin(Main.getTime()/60)*100+200),190),2.0f,color);

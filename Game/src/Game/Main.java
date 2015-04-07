@@ -88,7 +88,6 @@ public class Main {
                 menu.close();
             }
             else;
-            time++;
         }
     }
     
@@ -132,17 +131,17 @@ public class Main {
     }
     
     private static void gameLoop(){
-        GameState game = new GameState();
+        GameState gamestate = new GameState();
         
         while(!Display.isCloseRequested()){
             
-            game.update();
+            gamestate.update();
             render();
-            time++;
         }
     }
     
     private static void render(){
+            time++;
             Graphics.render();
             Display.update();
             Display.sync(60);

@@ -16,19 +16,20 @@ import org.lwjgl.util.vector.Vector2f;
  */
 public class Pistol extends Weapon {
     public Pistol(){
-        this.setName("Pistol");
-        this.setDMG(20);
-        this.setAttackrange(600);
-        this.setAttackspeed(10);
-        this.setCone(10);
-        this.setClipsize(12);
-        this.setAmmunation(36);
-        this.setReloadtime(4);
+        this.setName("Pistol"); // name
+        this.setDMG(20); // how much dmg weapon does
+        this.setAttackrange(600); // how far attacks will go
+        this.setAttackspeed(20); // how many attacks per second
+        this.setSpeed(10); //Visual speed
+        this.setCone(10); // how much attacks will go side at best
+        this.setClipsize(8);
+        this.setAmmunation(12); 
+        this.setReloadtime(60); // how many much time reloading takes
     }
 
     @Override
-    public void attack(Vector2f position, float height, float rotation) {
-        GameState.addAttack(new Bullet(position, height, rotation, this.getAttackspeed(), this.getAttackrange(), this.getDMG()));
+    public void projectile(Vector2f position, float height, float rotation) {
+        GameState.addAttack(new Bullet(position, height, rotation, this.getSpeed(), this.getAttackrange(), this.getDMG()));
     }
     
 }

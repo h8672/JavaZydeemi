@@ -9,8 +9,6 @@ package game.state.item.equipment.projectiles;
 import Game.graphics.Drawing;
 import Game.graphics.FireParticle;
 import Game.graphics.Graphics;
-import Game.state.GameState;
-import Game.state.event.events.Explosion;
 import Game.state.item.Projectile;
 import org.lwjgl.util.vector.Vector2f;
 
@@ -36,14 +34,14 @@ public class Bullet extends Projectile {
     @Override
     public float hit(){ // I hit something!
         this.setAttackrange(0);
-        GameState.addEvent(new Explosion(this.getPos(), 3,4));
+        //GameState.addEvent(new Explosion(this.getPos(), 3,4));
         return this.getDMG();
     }
     @Override
     public void render() {
         float size = 2.0f;
-        float[] color = { 1.0f, 1.0f, 1.0f, 0.5f };
         Drawing.drawThing(this.getPos(), size);
+        //float[] color = { 1.0f, 1.0f, 1.0f, 0.5f };
         //Drawing.drawSpriteCenteredAdditive(Graphics.getTexture(this.getName()), this.getPos(),5f,new Vector2f(size,size), color);
     }
 
