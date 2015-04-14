@@ -25,4 +25,5 @@ public interface Actor extends GameObject { // movable and acting game object
     public float defend(Attack attack);     //puolustautuu hyökkäykseltä
     public float defend(Usable usable);     //puolustautuu tavaralta
     public Vector2f move();                 //liikkuu kohtaan
+    public void kill();                     //suorittaa poistooperaatiot
 }

@@ -1,1 +1,2 @@
-Game.Input
+Game.input.KeyState
+Game.input.Input

@@ -170,18 +170,7 @@ public class Pathfind
                     
                     int oc = c2.length;
                     
-                    //Theta*
-                    
-                    PathCell pc = pmap[c1.parent.x][c1.parent.y];
-                    if (map.gridLineOfSight(c1.parent.x,c1.parent.y,cell2.x,cell2.y))
-                    {
-                        if (pc.length + IntPos.dist(c1.parent, cell2) < c2.length)
-                        {
-                            c2.parent = c1.parent;
-                            c2.length = pc.length + IntPos.dist(c1.parent, cell2);
-                        }
-                    }
-                    else
+                
                     if (c1.length + IntPos.dist(cell,cell2) < c2.length)
                     {
                         c2.parent = cell;

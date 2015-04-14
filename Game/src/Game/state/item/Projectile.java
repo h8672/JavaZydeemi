@@ -76,7 +76,7 @@ public abstract class Projectile implements Attack, Renderable {
             this.attackrange -= this.velocity.length();
         }
         else if(attackrange == 0) {
-            Graphics.removeRenderable(this);
+            kill();
             GameState.delAttack(this);
         }
         else{ // Mahollisesti väärä laskutoimitus
@@ -90,5 +90,10 @@ public abstract class Projectile implements Attack, Renderable {
     @Override
     public float getDepth() {
         return height;
+    }
+    
+    @Override
+    public void kill() {
+        Graphics.removeRenderable(this);
     }
 }

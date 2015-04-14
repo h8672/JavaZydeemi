@@ -6,6 +6,7 @@
 package Game.state;
 
 import Game.Main;
+import Game.graphics.Graphics;
 import Game.state.event.Event;
 import Game.state.item.equipment.Flamethrower;
 import Game.state.item.equipment.Pistol;
@@ -30,29 +31,31 @@ public class GameState {
     private ArrayList<AI> AIlist;
     private Map map;
     
+    private GameManager manager;
+    
+    
+    
     public GameState(){
         objects = new ArrayList();
         AIlist = new ArrayList();
         actors = new ArrayList();
         attacks = new ArrayList();
         events = new ArrayList();
-        player = new Player(new Vector2f(500,300), 20);
+        map = null;
+        
+        newGame();
+
+    }
+    
+    
+    public void spawnPlayer(Vector2f pos)
+    {
+        player = new Player(new Vector2f(pos), 20);
         player.setImage("tyyppi1");
         player.setSize(new Vector2f(20,20));
         player.setRotation(60);
         player.setWeapon(new Pistol());
         actors.add(player);
-        map = new Map(20,12);
-        
-        for (int i = 0; i < 1; i++)
-        {
-            Human h = new Human(new Vector2f(Main.randomFloat()*600+100,Main.randomFloat()*400+100), 20);
-            h.setColorHead(new float[]{Main.randomFloat(),Main.randomFloat(),Main.randomFloat(),1.0f});
-            h.setColorTorso(new float[]{Main.randomFloat(),Main.randomFloat(),Main.randomFloat(),1.0f});
-            h.setColorArms(new float[]{Main.randomFloat(),Main.randomFloat(),Main.randomFloat(),1.0f});
-            h.setRotation(Main.randomFloat()*360);
-            actors.add(h);
-        }
     }
 
     public static void addGameObject(GameObject object){
@@ -84,6 +87,9 @@ public class GameState {
     }
     
     public void update(){
+        
+        manager.manage();
+        
         ArrayList<Actor> list = new ArrayList(actors);
         for(Actor actor : list)
         {
@@ -129,7 +135,7 @@ public class GameState {
                 Actor act = actor;
                 
                 //keskustan sijainti, ympärysmitta r, viivan sijainti1, viivan sijainti2
-                cdr = CollisionDetection.checkCircleCollision(new Vector2f(act.getPosition()), act.getSize().length()/2, attack.getPos(), 2.0f);
+                cdr = CollisionDetection.checkCircleCollision(new Vector2f(act.getPosition()), act.getSize().length()/2, attack.getPos(), 16f);
                 
                 if(cdr.found == true){
                     System.out.println(actor.defend(attack));
@@ -143,6 +149,36 @@ public class GameState {
         for(Event event : events){
             
         }
+        
+        
+    }
+
+    public void newGame() {
+        
+        for (Actor a : actors)
+        {
+            a.kill();
+        }
+        
+        for (Attack a : attacks)
+        {
+            a.kill();
+        }
+        
+        objects.clear();
+        AIlist.clear();
+        actors.clear();
+        attacks.clear();
+        events.clear();
+        player = null;
+        
+        if (map != null)
+            Graphics.removeRenderable(map);
+        map = new Map(20,12);
+        Graphics.registerRenderable(map, Graphics.BaseLayer);
+        
+        
+        manager = new GameManager(this,map);
         
     }
     
