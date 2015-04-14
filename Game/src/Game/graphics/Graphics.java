@@ -1208,6 +1208,8 @@ public class Graphics
         generateTexture("explosion1",loadImageData("./data/fire/explosion.png",false));
         generateTexture("explosiondecal",loadImageData("./data/fire/explosiondecal.png",false));
         loadTexture("./data/tyyppi.png","tyyppi1",false);
+        loadTexture("./data/spark.png","spark",false);
+        loadTexture("./data/halo.png","halo",false);
         
         Animation anim = new Animation("fieryFlames");
         anim.addFrame(generateTexture("fire1",loadImageData("./data/fire/f1.png",false)));

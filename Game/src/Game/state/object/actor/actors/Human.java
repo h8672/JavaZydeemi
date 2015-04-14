@@ -64,6 +64,7 @@ public class Human extends Actors {
     public void setColorArms(float[] colorArms) {
         this.colorArms = colorArms;
     }
+    
 
 
     @Override

@@ -6,6 +6,7 @@
 
 package Game.state.item.equipment.projectiles;
 
+import Game.Main;
 import Game.graphics.Drawing;
 import Game.graphics.FireParticle;
 import Game.graphics.Graphics;
@@ -17,7 +18,7 @@ import org.lwjgl.util.vector.Vector2f;
  * @author h8672
  */
 public class Flame extends Projectile {
-    
+    private int flameSpawnTimer;
     public Flame(Vector2f position, float height, float rotation, float attackspeed, float attackrange, float DMG){
         this.setName("fire1");
         this.setPos(new Vector2f(position));
@@ -25,6 +26,7 @@ public class Flame extends Projectile {
         this.setHeight(height);
         this.setAttackrange(attackrange);
         Graphics.registerRenderable(this,Graphics.IntermediateAlphaLayer);
+        flameSpawnTimer = 0;
     }
     
     @Override
@@ -45,8 +47,23 @@ public class Flame extends Projectile {
 
     @Override
     public void update() {
-        FireParticle f = new FireParticle();
-        f.setPos(new Vector2f(this.getPos()));
+        if (flameSpawnTimer > 3)
+        {
+            if (Main.randomInt()%12 > 3)
+            {
+                FireParticle f = new FireParticle();
+                f.setPos(new Vector2f(this.getPos()));
+
+                Vector2f d = new Vector2f(this.getVel());
+                d.x /= 2;
+                d.y /= 2;
+                f.setVel(d);
+                f.setSpawnSmoke(false);
+            }
+        }
+        else
+            flameSpawnTimer++;
     }
     
 }
+

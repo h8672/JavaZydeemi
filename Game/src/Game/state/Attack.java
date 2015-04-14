@@ -17,4 +17,5 @@ public interface Attack {
     public float hit(boolean stop); // I hit something!
     public void update(); // I hit something!
     public void move(); // if flies!
+    public void kill();
 }

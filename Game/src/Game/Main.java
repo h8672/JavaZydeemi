@@ -27,15 +27,20 @@ import java.util.Scanner;
 public class Main {
     //private static Input input;
     
-    /**
-     * @param args the command line arguments
-     */
+    
     private static Random randomizer;
     private static int time;
     private static int state;
     private static Menu mainMenu;
+    private static Menu mainMenuInGame;
     private static Menu options;
     private static GameState game;
+    private static boolean gameInProgress = false;
+    
+    /** Palauttaa satunnaisen kokonaisluvun
+     * 
+     * @return satunnainen kokonaisluku
+     */
     public static int randomInt() {
         return randomizer.nextInt();
     }
@@ -62,6 +67,7 @@ public class Main {
                     break;
 
                 case 3:
+                    gameInProgress = true;
                     gameLoop();
                     break;
                 default:
@@ -87,19 +93,30 @@ public class Main {
         // Menun alustus
         mainMenu = new Menu("Woot gaming!");
         // Menun vaihtoehtojen lisäys
-        mainMenu.addChoice("Aloita peli");
-        mainMenu.addChoice("Asetukset");
-        mainMenu.addChoice("Lopeta");
+        mainMenu.addChoice("NEW GAME");
+        mainMenu.addChoice("SETTINGS");
+        mainMenu.addChoice("QUIT");
         
-        mainMenu.setVisible(true);   
+        mainMenu.setVisible(false);   
+        
+        
+        mainMenuInGame = new Menu("PAUSED!!!");
+        // Menun vaihtoehtojen lisäys
+        mainMenuInGame.addChoice("CONTINUE GAME");
+        mainMenuInGame.addChoice("NEW GAME");
+        mainMenuInGame.addChoice("SETTINGS");
+        mainMenuInGame.addChoice("QUIT");
+        
+        mainMenuInGame.setVisible(false);
+        
         
         
         options = new Menu("Options");
         
         
-        options.addChoice("-");
-        options.addChoice("-");
-        options.addChoice("Takaisin");
+        options.addChoice("AA");
+        options.addChoice("SW");
+        options.addChoice("BACK");
         
         updateOptionsMenuStrings();
 
@@ -132,7 +149,11 @@ public class Main {
         switch (state)
         {
             case 1:
-                menu = mainMenu;
+                if (gameInProgress)
+                    menu = mainMenuInGame;
+                else
+                    menu = mainMenu;
+                    
                 break;
             case 2:
                 menu = options;
@@ -156,7 +177,10 @@ public class Main {
             switch (state)
             {
                 case 1:
-                    updateMainMenu();
+                    if (gameInProgress)
+                        updateMainMenuInGame();
+                    else
+                        updateMainMenu();
                     break;
                 case 2:
                     updateOptions();
@@ -166,10 +190,6 @@ public class Main {
                     return;
             }
         }
-        
-        if (Input.getKeyPressed(Keyboard.KEY_ESCAPE))
-            state = 0;
-           
     }
     
     private static void init(){
@@ -215,6 +235,29 @@ public class Main {
         Keyboard.destroy();
         Mouse.destroy();
         Graphics.saveSettings();
+    }
+    
+    private static void updateMainMenuInGame() {
+        
+        switch (mainMenuInGame.chosenone())
+        {
+            case 1:
+                state = 3;
+                break;
+            case 2:
+                game.newGame();
+                state = 3;
+                break;
+            case 3:
+                state = 2;
+                break;
+            default:
+                state = 0;
+                break;
+                
+        }
+        
+        mainMenuInGame.setVisible(false);
     }
 
     private static void updateMainMenu() {

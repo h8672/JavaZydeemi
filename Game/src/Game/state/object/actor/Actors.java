@@ -156,6 +156,8 @@ public abstract class Actors implements Actor, Renderable {
         return position;
     }
     
+    
+    
     @Override
     public void update()
     {   
@@ -163,5 +165,10 @@ public abstract class Actors implements Actor, Renderable {
             Graphics.removeRenderable(this);
             GameState.delActor(this);
         }
+    }
+    
+    @Override
+    public void kill() {
+        Graphics.removeRenderable(this);
     }
 }
