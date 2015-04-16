@@ -5,12 +5,18 @@
  */
 package Game.state;
 
+import Game.Main;
 import Game.graphics.Graphics;
 import Game.state.event.Event;
+import Game.state.item.equipment.AssaultRifle;
+import Game.state.item.equipment.Flamethrower;
 import Game.state.item.equipment.Pistol;
+import Game.state.item.equipment.RocketLauncher;
 import Game.state.object.GameObject;
 import Game.state.object.actor.Actors;
 import Game.state.object.actor.actors.Human;
+import Game.state.object.objects.items.ItemGround;
+import Game.state.object.objects.items.WeaponGround;
 import game.state.object.actor.actors.Player;
 import java.util.ArrayList;
 import org.lwjgl.util.vector.Vector2f;
@@ -24,12 +30,32 @@ public class GameState {
     private static ArrayList<Actors> actors;
     private static ArrayList<Attack> attacks;
     private static ArrayList<Event> events;
+    private static ArrayList<ItemGround> items;
+    private static int score;
+
+    public static int getScore() {
+        return score;
+    }
+    
+    public static void addScore(int s) {
+        score+=s;
+    }
+    
+    
     private static Player player;
+
+    public static void playerDied()
+    {
+        manager.playerDied();
+    }
+
+
+   
     private Map map;
     
     private static Vector2f path;
     
-    private GameManager manager;
+    private static GameManager manager;
     
     
     
@@ -38,11 +64,30 @@ public class GameState {
         actors = new ArrayList();
         attacks = new ArrayList();
         events = new ArrayList();
+        items = new ArrayList();
         path = new Vector2f(0,0);
         map = null;
+        score = 0;
         
+        WeaponGround.initializeTextures();
+        
+       
         newGame();
 
+    }
+    
+    
+    static void spawnRandomItem(Vector2f spawnPos)
+    {
+        WeaponGround wappet;
+        int ch = Math.abs(Main.randomInt()%2);
+        if (ch == 0)
+            wappet = new WeaponGround(new RocketLauncher());
+        else
+            wappet = new WeaponGround(new Flamethrower());
+        wappet.setPosition(spawnPos);
+        addItem(wappet);
+        
     }
     
     
@@ -52,7 +97,7 @@ public class GameState {
         player.setImage("tyyppi1");
         player.setSize(new Vector2f(20,20));
         player.setRotation(60);
-        player.setWeapon(new Pistol());
+        player.setWeapon(new AssaultRifle());
         actors.add(player);
     }
 
@@ -88,6 +133,14 @@ public class GameState {
         path = paths;
     }
     
+    public static void addItem(ItemGround a) {
+        items.add(a);
+    }
+    
+    public static void delItem(ItemGround a) {
+        items.remove(a);
+    }
+    
     public void update(){
         
         manager.manage();
@@ -96,6 +149,9 @@ public class GameState {
         
         for(Actors actor : list)
         {
+            if (actor.getHP() <= 0)
+                score+= 1000;
+            
             actor.update();
             actor.move();
             
@@ -117,6 +173,10 @@ public class GameState {
             
             if(actor != player)
             {
+                if (player.getHP() <= 0)
+                {
+                    continue;
+                }
                 float forward = 2f;
                 if(Pathfind.pathfindInMap(player.getPosition(), actor.getPosition(), map)){
                     Vector2f vec = new Vector2f(actor.getPosition().x - player.getPosition().x, actor.getPosition().y - player.getPosition().y);
@@ -168,9 +228,39 @@ public class GameState {
             }
             
         }
-        
-        for(Event event : events){
+        ArrayList<ItemGround> list3 = new ArrayList(items);
+        for(ItemGround item : list3)
+        {
+            item.update();
             
+            if (player != null)
+            {
+                CollisionDetectionResult cdr = CollisionDetection.checkCircleCollision(new Vector2f(player.getPosition()), player.getSize().length()/2, item.getPosition(), 16f);
+                
+                if(cdr.found == true){
+                    item.addEffect(player);
+                    delItem(item);
+                    
+                }
+            }
+        }
+        ArrayList<Event> list4 = new ArrayList(events);
+        for(Event event : list4){
+            
+            for(Actors actor : list)
+            {
+                Vector2f p1 = actor.getPosition();
+                Vector2f p2 = event.getPosition();
+                
+                float dist = (float) Math.hypot(p1.x-p2.x, p1.y-p2.y);
+                if (dist < event.getRadius())
+                {
+                    float factor = dist/event.getRadius();
+                    actor.setHP(actor.getHP()-event.getDamage()*factor);
+                }
+                
+            }
+            delEvent(event);
         }
         
         

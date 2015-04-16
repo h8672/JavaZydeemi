@@ -17,14 +17,14 @@ import org.lwjgl.util.vector.Vector2f;
  */
 public class Flamethrower extends Weapon {
     public Flamethrower(){
-        this.setName("Flamethrower");
-        this.setDMG(4);
+        this.setName("flamethrower");
+        this.setDMG(15);
         this.setAttackrange(250);
         this.setAttackspeed(2);
         this.setSpeed(8);
         this.setCone(10);
         this.setClipsize(150);
-        this.setAmmunation(50);
+        this.setAmmunation(150);
         this.setReloadtime(20);
     }
 

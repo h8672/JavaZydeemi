@@ -40,6 +40,7 @@ public class TextRendererFont
         filenameToGlyphMap.put("par2", ')');
         filenameToGlyphMap.put("plus", '+');
         filenameToGlyphMap.put("equals", '=');
+        filenameToGlyphMap.put("slash", '/');
     }
     
     

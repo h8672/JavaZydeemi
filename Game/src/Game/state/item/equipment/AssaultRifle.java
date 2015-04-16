@@ -1,3 +1,7 @@
+/**
+ *
+ * @author MacodiusMaximus
+ */
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -12,18 +16,18 @@ import org.lwjgl.util.vector.Vector2f;
 
 /**
  *
- * @author Juha-Matti
+ * @author MacodiusMaximus
  */
-public class Pistol extends Weapon {
-    public Pistol(){
-        this.setName("Pistol"); // name
+public class AssaultRifle extends Weapon {
+    public AssaultRifle(){
+        this.setName("Assault Rifle"); // name
         this.setDMG(35); // how much dmg weapon does
         this.setAttackrange(600); // how far attacks will go
-        this.setAttackspeed(20); // how many attacks per second
+        this.setAttackspeed(8); // how many attacks per second
         this.setSpeed(20); //Visual speed
         this.setCone(10); // how much attacks will go side at best
-        this.setClipsize(8);
-        this.setAmmunation(12); 
+        this.setClipsize(30);
+        this.setAmmunation(30); 
         this.setReloadtime(60); // how many much time reloading takes
     }
 

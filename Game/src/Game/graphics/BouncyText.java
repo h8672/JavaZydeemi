@@ -16,6 +16,14 @@ public class BouncyText extends ParticleFX
     private Vector2f pos;
     private Vector2f vel;
     private Vector2f gravity;
+
+    public Vector2f getGravity() {
+        return gravity;
+    }
+
+    public void setGravity(Vector2f gravity) {
+        this.gravity = gravity;
+    }
     private float bounceY;
     private float removeY;
     private float size;
@@ -89,6 +97,10 @@ public class BouncyText extends ParticleFX
         if (pos.y > removeY)
             Graphics.removeRenderable(this);
         
+    }
+
+    public void setSize(float i) {
+        size = i;
     }
     
 }

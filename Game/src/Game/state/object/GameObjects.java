@@ -16,7 +16,7 @@ public abstract class GameObjects implements GameObject, Renderable {
     Vector2f position, size;
     float rotation, height;
     String Image;
-    boolean Visible;
+    boolean Visible = true;
 
     @Override
     public Vector2f getPosition() {

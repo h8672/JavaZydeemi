@@ -11,7 +11,9 @@ import Game.graphics.FireParticle;
 import Game.graphics.HaloParticle;
 import Game.graphics.SmokeParticle;
 import Game.graphics.SparkParticle;
+import Game.state.event.events.Explosion;
 import Game.state.object.actor.actors.Human;
+import java.util.ArrayList;
 import org.lwjgl.util.vector.Vector2f;
 
 /** GameManager: pelin hallitsija
@@ -22,24 +24,30 @@ import org.lwjgl.util.vector.Vector2f;
 
 
 public class GameManager {
-    
-    
+
+  
+
     
     enum GamePhase {
-        Beginning, SpawnPlayer, SpawnWalls, SpawnEnemies
+        Beginning, SpawnPlayer, SpawnWalls, SpawnEnemies, Lost
     }
+    private ArrayList<Integer> enemySpawnerPhases;
+    private ArrayList<Vector2f> enemySpawnerLocations;
     private Map map;
     private GamePhase phase;
     private int gameTimer;
-    private int difficulty;
-    
+    private float difficulty;
+    private int livesLeft;
     private Vector2f playerSpawnPos;
     private Vector2f enemySpawnPos;
     public GameManager(Map map)
     {
         this.map = map;
         this.phase = GamePhase.SpawnWalls;
-        difficulty = 0;
+        difficulty = 5;
+        livesLeft = 3;
+        enemySpawnerPhases = new ArrayList<>();
+        enemySpawnerLocations= new ArrayList<>();
     }
     
     private void switchPhase(GamePhase p)
@@ -47,10 +55,118 @@ public class GameManager {
         phase = p;
         gameTimer = 0;
     }
+    
+    private int lastItemSpawn = 0;
+    
+    private void spawnRandomItems()
+    {
+        lastItemSpawn++;
+        if (lastItemSpawn == 500)
+        {
+            int border = 1;
+            float minX = map.getTileSize()*border;
+            float minY = map.getTileSize()*border;
+            float dX = (map.getWidth()-border*2)*map.getTileSize();
+            float dY = (map.getHeight()-border*2)*map.getTileSize();
+            
+            int oCount= 50;
+            boolean collides;
+            Vector2f spawnPos;
+            do
+            {
+                collides = false;
+                spawnPos = new Vector2f(minX+dX*Main.randomFloat(),minY+dY*Main.randomFloat());
+                oCount --;
+                
+                collides |= map.getTileCollision(spawnPos);
+                Vector2f copy = new Vector2f(spawnPos);
+                collides |= map.getTileCollision(copy.translate(5,0));
+                collides |= map.getTileCollision(copy.translate(-10,0));
+                collides |= map.getTileCollision(copy.translate(5,5));
+                collides |= map.getTileCollision(copy.translate(0,-10));
+                
+            }
+            while (collides && (oCount > 0));
+            
+            int sparkCount = 1;
+            float sparkArea = 14;
+            for (int i = 0; i < sparkCount; i++)
+            {
+                
+                SparkParticle spark = new SparkParticle();
+                Vector2f sPos = new Vector2f();
+                sPos.x = spawnPos.x-sparkArea+sparkArea*2*Main.randomFloat();
+                sPos.y = spawnPos.y-sparkArea+sparkArea*2*Main.randomFloat();
+                spark.setPos(sPos);
+            }
+            
+            GameState.spawnRandomItem(spawnPos);
+            lastItemSpawn = (-1000)+(int)difficulty*70;
+        }
+    }
+    
+    
+    public void playerDied() {
+        switchPhase(GamePhase.SpawnPlayer);
+        
+        livesLeft--;
+        if (livesLeft > 0)
+        {
+            BouncyText t;
+            if (livesLeft != 1)
+                t = new BouncyText("ONLY "+livesLeft+" LIVES LEFT");
+            else
+                t = new BouncyText("ONLY 1 LIFE LEFT!!!");
+            
+            t.setPos(new Vector2f(Main.randomInt()%200+300,-30));
+            t.setSize(2);
+        }
+        if (livesLeft == 0)
+        {
+            BouncyText t =new BouncyText("LAST LIFE, MAKE IT COUNT!!!");
+            t.setPos(new Vector2f(Main.randomInt()%200+300,-30));
+            t.setSize(2);
+        }
+        if (livesLeft < 0)
+        {
+            BouncyText t =new BouncyText(Integer.toString(GameState.getScore()));
+            t.setPos(new Vector2f(Main.randomInt()%200+300,-180));
+            t.setSize(6);
+            t.setGravity(new Vector2f(0,0.03f));
+            
+            t =new BouncyText("GAME OVER!");
+            t.setPos(new Vector2f(Main.randomInt()%200+300,-30));
+            t.setSize(6);
+            switchPhase(GamePhase.Lost);
+        }
+        difficulty -= 1.6;
+    }
+    
+    private void lost()
+    {
+        if (gameTimer == 25)
+        {
+            int choice = Math.abs(Main.randomInt())%2;
+            BouncyText t;
+            
+            
+            if (choice == 0)
+                t =new BouncyText("GAME OVER!");
+            else
+                t =new BouncyText("FINAL SCORE "+GameState.getScore());
+            
+            
+            t.setSize(2);
+            t.setPos(new Vector2f(Main.randomInt()%400+500,-30));
+            
+            switchPhase(phase);
+        }
+            
+    }
 
     private void spawnPlayer()
     {
-        if (gameTimer == 2)
+        if (gameTimer == 95)
         {
             int border = 3;
             float minX = map.getTileSize()*border;
@@ -76,9 +192,12 @@ public class GameManager {
             }
             while (collides && (oCount > 0));
             
+            GameState.addEvent(new Explosion(playerSpawnPos, 140, 140));
+            
         }
-        if (gameTimer > 3)
+        if (gameTimer > 96)
         {
+            
             int sparkCount = 1;
             float sparkArea = 14;
             
@@ -94,7 +213,7 @@ public class GameManager {
             
         }
         
-        if (gameTimer > 45)
+        if (gameTimer > 140)
         {
             GameState.spawnPlayer(playerSpawnPos);
             switchPhase(GamePhase.SpawnEnemies);
@@ -161,37 +280,44 @@ public class GameManager {
         
     }
     
-    private void spawnEnemies()
+    private void updateEnemySpawner(int index)
     {
-        if (gameTimer == 65)
+        int timer = enemySpawnerPhases.get(index);
+
+        if (timer == 1)
         {
+            GameState.addScore(100);
+            
             int border = 1;
             float minX = map.getTileSize()*border;
             float minY = map.getTileSize()*border;
             float dX = (map.getWidth()-border*2)*map.getTileSize();
             float dY = (map.getHeight()-border*2)*map.getTileSize();
-            
+            Vector2f spawnPos;
             int oCount= 50;
             boolean collides;
             do
             {
                 collides = false;
-                enemySpawnPos = new Vector2f(minX+dX*Main.randomFloat(),minY+dY*Main.randomFloat());
+                spawnPos = new Vector2f(minX+dX*Main.randomFloat(),minY+dY*Main.randomFloat());
                 oCount --;
                 
-                collides |= map.getTileCollision(enemySpawnPos);
-                Vector2f copy = new Vector2f(enemySpawnPos);
+                collides |= map.getTileCollision(spawnPos);
+                Vector2f copy = new Vector2f(spawnPos);
                 collides |= map.getTileCollision(copy.translate(5,0));
                 collides |= map.getTileCollision(copy.translate(-10,0));
                 collides |= map.getTileCollision(copy.translate(5,5));
                 collides |= map.getTileCollision(copy.translate(0,-10));
                 
+                
             }
             while (collides && (oCount > 0));
             
+            enemySpawnerLocations.set(index, spawnPos);
         }
+        Vector2f location = enemySpawnerLocations.get(index);
         
-        if (gameTimer > 76 && gameTimer < 90)
+        if (timer > 20 && timer < 60)
         {
             int smokeCount = 5;
             float smokeArea = 24;
@@ -199,33 +325,77 @@ public class GameManager {
             {
                 SmokeParticle s = new SmokeParticle();
                 Vector2f sPos = new Vector2f();
-                sPos.x = enemySpawnPos.x-smokeArea+smokeArea*2*Main.randomFloat();
-                sPos.y = enemySpawnPos.y-smokeArea+smokeArea*2*Main.randomFloat();
+                sPos.x = location.x-smokeArea+smokeArea*2*Main.randomFloat();
+                sPos.y = location.y-smokeArea+smokeArea*2*Main.randomFloat();
                 s.setPos(sPos);
             }
             
         }
         
-        if (gameTimer == 66)
+        if (timer == 1)
         {
             HaloParticle halo = new HaloParticle();
             
-            halo.setPos(new Vector2f(enemySpawnPos));
+            halo.setPos(new Vector2f(location));
             
         }
-        if (gameTimer == 90)
+        if (timer == 60)
         {
-            Human h = new Human(new Vector2f(enemySpawnPos), 20);
-            h.setColorHead(new float[]{Main.randomFloat(),Main.randomFloat(),Main.randomFloat(),1.0f});
-            h.setColorTorso(new float[]{Main.randomFloat(),Main.randomFloat(),Main.randomFloat(),1.0f});
-            h.setColorArms(new float[]{Main.randomFloat(),Main.randomFloat(),Main.randomFloat(),1.0f});
-            h.setRotation(Main.randomFloat()*360);
-            GameState.addActor(h);
-                    
+            int spawnCount = 1;
+         
+                   
+            for (int i = 0; i < spawnCount; i++)
+            {
+                Vector2f spawnPos = new Vector2f(location);
+                spawnPos.x+=(Main.randomFloat()-0.5)*4;
+                spawnPos.y+=(Main.randomFloat()-0.5)*4;
+                Human h = new Human(new Vector2f(location), 20);
+                h.setColorHead(new float[]{Main.randomFloat(),Main.randomFloat(),Main.randomFloat(),1.0f});
+                h.setColorTorso(new float[]{Main.randomFloat(),Main.randomFloat(),Main.randomFloat(),1.0f});
+                h.setColorArms(new float[]{Main.randomFloat(),Main.randomFloat(),Main.randomFloat(),1.0f});
+                h.setRotation(Main.randomFloat()*360);
+                GameState.addActor(h);
+            }
+
         }
         
-        if (gameTimer > 160)
+        enemySpawnerPhases.set(index, timer+1);
+        
+    }
+
+  
+    
+    private void spawnEnemies()
+    {
+        if (gameTimer == 30)
+        {
+            gameTimer += difficulty*20;
+            
+            
+            int dC = Main.randomInt()%12+(int)difficulty-15;
+            
+            int iCount = 1;
+            if (dC > 0)
+                iCount++;
+            for (int i = 0; i < iCount; i++)
+            {
+                enemySpawnerPhases.add(Main.randomInt()%12-12);
+                enemySpawnerLocations.add(new Vector2f());
+                
+            }
+        }
+        if (gameTimer > 360)
+        {
+            
             switchPhase(GamePhase.SpawnEnemies);
+            
+            if (difficulty > 10)
+                difficulty += 0.1;
+            else
+                difficulty += 0.2;
+            if (difficulty > 15)
+                difficulty = 15;
+        }
         
     }
     
@@ -243,12 +413,36 @@ public class GameManager {
                 spawnWalls();
                 break;
             case SpawnEnemies:
-                spawnEnemies();
+                spawnEnemies();                
+                spawnRandomItems();
+                break;
+            case Lost:
+                lost();
                 break;
         }
+        
+        int i = 0;
+        for (i = 0; i < enemySpawnerPhases.size(); i++)
+        {
+            updateEnemySpawner(i);
+        }
+        
+        ArrayList listCopy = new ArrayList(enemySpawnerPhases);
+        
+        for (i = 0; i < enemySpawnerPhases.size(); i++)
+        {
+            if ((Integer)listCopy.get(i) > 60)
+            {
+                enemySpawnerPhases.remove(i);
+                enemySpawnerLocations.remove(i);
+            }
+        }
+        
         
         
         gameTimer++;
     }
     
 }
+
+

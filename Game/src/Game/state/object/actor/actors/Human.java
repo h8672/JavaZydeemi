@@ -72,7 +72,11 @@ public class Human extends Actors {
         Drawing.enableColorizer(colorTorso, colorArms, colorHead);
         Drawing.drawSpriteCentered(Graphics.getTexture("tyyppi1"), this.getPosition(),this.getRotation());
         Drawing.disableColorizer();
-        Drawing.drawBar(this.getPosition(), this.getSize().length(), new float[] {0f, 0f, 0f}, new float[] {0.6f, 1.5f, 0f}, this.getHP(), 100);
+        Vector2f hpos = new Vector2f(this.getPosition().x,this.getPosition().y);
+        hpos.y-=15;
+        hpos.x-=15;
+        Drawing.drawBar(hpos, 30, new float[] {0f, 0f, 0f}, new float[] {0.6f, 1.5f, 0f}, this.getHP(), 100);
+        
     }
 
 }

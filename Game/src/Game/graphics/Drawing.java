@@ -32,14 +32,18 @@ public class Drawing
 
         GL11.glPopMatrix();
     }
-    
     public static void drawBar(Vector2f pos, float size, float color1[], float color2[],float current, float max)
+    {
+        drawBar(pos,size,color1,color2,current,max,4);
+    }
+    
+    public static void drawBar(Vector2f pos, float size, float color1[], float color2[],float current, float max,float height)
     {
         GL11.glPushMatrix();
         GL11.glTranslatef(pos.x,pos.y,0.0f);
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         
-        GL11.glScalef(size,4,1);
+        GL11.glScalef(size,height,1);
         
         GL11.glColor4f(color1[0],color1[1],color1[2],1.0f);
         
@@ -57,19 +61,27 @@ public class Drawing
         GL11.glPopMatrix();
     }
     
-    public static void drawLine(Vector2f p1,Vector2f p2)
+    public static void drawLine(Vector2f p1, Vector2f p2, float[] f)
     {
         GL11.glDisableClientState(GL11.GL_VERTEX_ARRAY);
         GL11.glDisableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
         GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glColor4f(f[0],f[1],f[2],f[3]);
+        
         GL11.glBegin(GL11.GL_LINES);
         GL11.glVertex2f(p1.x,p1.y);
         GL11.glVertex2f(p2.x,p2.y);  
-         
         GL11.glEnd();
+        
+        GL11.glColor4f(1,1,1,1);
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         GL11.glEnableClientState(GL11.GL_VERTEX_ARRAY);
         GL11.glEnableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
+    }
+    
+    public static void drawLine(Vector2f p1,Vector2f p2)
+    {
+        drawLine(p1,p2,new float[]{1,1,1,1});
     }
     
     /** Piirtää spriten määrätyllä koolla
@@ -251,4 +263,6 @@ public class Drawing
             GL11.glDrawArrays(GL11.GL_QUADS, 0, 4);
         }
     }
+
+    
 }

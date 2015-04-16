@@ -5,6 +5,8 @@
  */
 package Game.state.event;
 
+import org.lwjgl.util.vector.Vector2f;
+
 /**
  * Base abstract class for Event interface
  * @author Juha-Matti
@@ -14,6 +16,17 @@ public abstract class Events implements Event{
     float radius; // PII radius^2 = area mostly
     float damage; // Event damage
     boolean contagious;
+    Vector2f position;
+
+    
+    @Override
+    public Vector2f getPosition() {
+        return position;
+    }
+
+    public void setPosition(Vector2f position) {
+        this.position = position;
+    }
     
     public void setName(String name){
         this.name = name;

@@ -5,6 +5,8 @@
  */
 package Game.state.event;
 
+import org.lwjgl.util.vector.Vector2f;
+
 /**
  * Event interface
  * @author Juha-Matti
@@ -14,5 +16,6 @@ public interface Event {
     public String getName();
     public float getRadius();
     public float getDamage();
+    public Vector2f getPosition();
     public boolean getContagious();
 }

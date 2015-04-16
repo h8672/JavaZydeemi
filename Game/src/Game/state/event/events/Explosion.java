@@ -19,6 +19,7 @@ public class Explosion extends Events {
         this.setRadius(100.0f);
         this.setDamage(1000.0f);
         this.setContagious(false);//ellei...
+        this.setPosition(position);
         ParticleEffects.explode(position);
     }
     public Explosion(Vector2f position, float radius, float damage){
@@ -26,6 +27,7 @@ public class Explosion extends Events {
         this.setRadius(radius);
         this.setDamage(damage);
         this.setContagious(false);//ellei...
+        this.setPosition(position);
         ParticleEffects.explode(position);
     }
 }
