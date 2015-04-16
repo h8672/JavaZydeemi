@@ -117,10 +117,18 @@ public class GameState {
             
             if(actor != player)
             {
+                float forward = 2f;
                 if(Pathfind.pathfindInMap(player.getPosition(), actor.getPosition(), map)){
-                    float rot = getRotFromVectors(new Vector2f(path), new Vector2f(actor.getPosition()));
-                    actor.setRotation(rot);
-                    actor.addVelocity(2f, actor.getRotation());
+                    Vector2f vec = new Vector2f(actor.getPosition().x - player.getPosition().x, actor.getPosition().y - player.getPosition().y);
+                    if(vec.length() > 200)
+                        actor.setRotation(getRotFromVectors(new Vector2f(path), new Vector2f(actor.getPosition())));
+                    else if(vec.length() > 50)
+                        actor.setRotation(getRotFromVectors(new Vector2f(player.getPosition()), new Vector2f(actor.getPosition())));
+                    else{
+                        actor.setRotation(getRotFromVectors(new Vector2f(player.getPosition()), new Vector2f(actor.getPosition())));
+                        forward = 0;
+                    }
+                    actor.addVelocity(forward, actor.getRotation());
                 }
                 
                 cdr = CollisionDetection.checkCircleCollision(new Vector2f(actor.getPosition()), actor.getWeapon().getAttackrange()/5, player.getPosition(), 1f);
@@ -174,9 +182,8 @@ public class GameState {
      * @return (float)rotation
      */
     private float getRotFromVectors(Vector2f vec1, Vector2f vec2){
-        float rota, length, x, y;
+        float rota = 270;
         
-        rota = 270;//fix to angle
         // 0 ylös
         // 90  ja -270 vasen
         // 180 ja -180 alas
