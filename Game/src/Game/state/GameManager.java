@@ -28,7 +28,6 @@ public class GameManager {
     enum GamePhase {
         Beginning, SpawnPlayer, SpawnWalls, SpawnEnemies
     }
-    private GameState state;
     private Map map;
     private GamePhase phase;
     private int gameTimer;
@@ -36,9 +35,8 @@ public class GameManager {
     
     private Vector2f playerSpawnPos;
     private Vector2f enemySpawnPos;
-    public GameManager(GameState state, Map map)
+    public GameManager(Map map)
     {
-        this.state = state;
         this.map = map;
         this.phase = GamePhase.SpawnWalls;
         difficulty = 0;
@@ -61,7 +59,7 @@ public class GameManager {
             float dY = (map.getHeight()-border*2)*map.getTileSize();
             
             int oCount= 50;
-            boolean collides = false;
+            boolean collides;
             do
             {
                 collides = false;
@@ -98,7 +96,7 @@ public class GameManager {
         
         if (gameTimer > 45)
         {
-            state.spawnPlayer(playerSpawnPos);
+            GameState.spawnPlayer(playerSpawnPos);
             switchPhase(GamePhase.SpawnEnemies);
         }
         
@@ -174,7 +172,7 @@ public class GameManager {
             float dY = (map.getHeight()-border*2)*map.getTileSize();
             
             int oCount= 50;
-            boolean collides = false;
+            boolean collides;
             do
             {
                 collides = false;
@@ -222,7 +220,7 @@ public class GameManager {
             h.setColorTorso(new float[]{Main.randomFloat(),Main.randomFloat(),Main.randomFloat(),1.0f});
             h.setColorArms(new float[]{Main.randomFloat(),Main.randomFloat(),Main.randomFloat(),1.0f});
             h.setRotation(Main.randomFloat()*360);
-            state.addActor(h);
+            GameState.addActor(h);
                     
         }
         

@@ -24,7 +24,7 @@ public class GameState {
     private static ArrayList<Actors> actors;
     private static ArrayList<Attack> attacks;
     private static ArrayList<Event> events;
-    private Player player;
+    private static Player player;
     private Map map;
     
     private static Vector2f path;
@@ -46,7 +46,7 @@ public class GameState {
     }
     
     
-    public void spawnPlayer(Vector2f pos)
+    static public void spawnPlayer(Vector2f pos)
     {
         player = new Player(new Vector2f(pos), 20);
         player.setImage("tyyppi1");
@@ -221,7 +221,7 @@ public class GameState {
         map = new Map(20,12);
         Graphics.registerRenderable(map, Graphics.BaseLayer);
         
-        manager = new GameManager(this,map);
+        manager = new GameManager(map);
     }
     
 }
