@@ -7,14 +7,11 @@ package Game.state;
 
 import Game.Main;
 import Game.graphics.BouncyText;
-import Game.graphics.ExplosionParticle;
 import Game.graphics.FireParticle;
 import Game.graphics.HaloParticle;
-import Game.graphics.ParticleEffects;
 import Game.graphics.SmokeParticle;
 import Game.graphics.SparkParticle;
 import Game.state.object.actor.actors.Human;
-import game.state.object.actor.actors.Player;
 import org.lwjgl.util.vector.Vector2f;
 
 /** GameManager: pelin hallitsija
@@ -106,6 +103,7 @@ public class GameManager {
         }
         
     }
+    
     private void spawnWalls()
     {
         if (gameTimer == 1)

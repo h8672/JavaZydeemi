@@ -62,6 +62,7 @@ public abstract class Projectile implements Attack, Renderable {
     @Override
     public float hit(boolean stop){ // I hit something!
         attackrange = 0;
+        move();
         return this.DMG;
     }
     public void hitEvent(Event event){

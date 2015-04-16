@@ -45,10 +45,10 @@ public class Player extends Actors {
             this.setRotation(this.getRotation() - 4f);
         }
         if (Keyboard.isKeyDown(Keyboard.KEY_Z)){
-            this.setVelocity(4f, this.getRotation() + 90);
+            this.setVelocity(3f, this.getRotation() + 90);
         }
         if (Keyboard.isKeyDown(Keyboard.KEY_X)){
-            this.setVelocity(4f, this.getRotation() - 90);
+            this.setVelocity(3f, this.getRotation() - 90);
         }
         if (Keyboard.isKeyDown(Keyboard.KEY_UP)){
             this.addVelocity(4f, this.getRotation());

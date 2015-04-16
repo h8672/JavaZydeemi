@@ -139,14 +139,15 @@ public abstract class Actors implements Actor, Renderable {
     }
     @Override
     public float defend(Attack attack) {
-        float dmg = armor.getAmount() - attack.hit(false);
+        float dmg = attack.hit(false) - armor.getAmount();
         System.out.println("dealt damage: " + dmg);
         if(dmg > 0) this.HP -= dmg;
         return this.HP;
     }
     @Override
     public float defend(Usable usable) {
-        return this.HP += armor.getAmount() - usable.getAmount();
+        System.out.println("Testest");
+        return this.HP += usable.getAmount() - armor.getAmount();
     }
     @Override
     public Vector2f move() {

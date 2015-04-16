@@ -75,10 +75,11 @@ class PathCellGoalComparator implements Comparator<IntPos>
  */
 public class Pathfind
 {
-    private LinkedList<Vector2f> points;
-    private boolean found = false;
+    private static LinkedList<Vector2f> points;
+    private static boolean found;
     
-    public boolean pathfindInMap(Vector2f pos1, Vector2f pos2, Map map)
+    
+    static public boolean pathfindInMap(Vector2f pos1, Vector2f pos2, Map map)
     {
         found = false;
         if (map.getTileCollision(pos1))
@@ -150,8 +151,7 @@ public class Pathfind
             //8 suuntaa
             //int[] dcxList = new int[]{-1,-1,0,1,1,1,0,-1};
             //int[] dcyList = new int[]{0,-1,-1,-1,0,1,1,1};
-            int i = 0;
-            for (i = 0; i < dcxList.length; i++)
+            for (int i = 0; i < dcxList.length; i++)
             {
                 int dcx = dcxList[i];
                 int dcy = dcyList[i]; 
@@ -193,8 +193,8 @@ public class Pathfind
         
         if (foundPath)
         {
-            this.points = new LinkedList<>();
-            this.found = true;
+            points = new LinkedList<>();
+            found = true;
             IntPos d = new IntPos(goalx,goaly);
             IntPos start = new IntPos(startx,starty);
             while (d.compareTo(start) != 0)
@@ -202,7 +202,7 @@ public class Pathfind
                 Vector2f pos = new Vector2f();
                 pos.x = ((float)d.x+0.5f)*map.getTileSize();
                 pos.y = ((float)d.y+0.5f)*map.getTileSize();
-                this.points.addLast(pos);
+                points.addLast(pos);
                 
                 d = pmap[d.x][d.y].parent;
             }
@@ -211,9 +211,18 @@ public class Pathfind
             pos.x = ((float)d.x+0.5f)*map.getTileSize();
             pos.y = ((float)d.y+0.5f)*map.getTileSize();
 
-            this.points.addLast(pos);
+            points.addLast(pos);
         }
-        return this.found;
+        
+        if(foundPath){
+            if(points.size() > 1){
+                GameState.setPath(new Vector2f(points.get(1)));
+            }
+            else{
+                GameState.setPath(new Vector2f(0,0));
+            }
+        }
+        return found;
     }
     
     boolean foundPath()

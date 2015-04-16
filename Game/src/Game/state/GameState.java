@@ -5,15 +5,12 @@
  */
 package Game.state;
 
-import Game.Main;
 import Game.graphics.Graphics;
 import Game.state.event.Event;
-import Game.state.item.equipment.Flamethrower;
 import Game.state.item.equipment.Pistol;
 import Game.state.object.GameObject;
-import Game.state.object.actor.Actor;
+import Game.state.object.actor.Actors;
 import Game.state.object.actor.actors.Human;
-import game.state.AI;
 import game.state.object.actor.actors.Player;
 import java.util.ArrayList;
 import org.lwjgl.util.vector.Vector2f;
@@ -24,12 +21,13 @@ import org.lwjgl.util.vector.Vector2f;
  */
 public class GameState {
     private static ArrayList<GameObject> objects;
-    private static ArrayList<Actor> actors;
+    private static ArrayList<Actors> actors;
     private static ArrayList<Attack> attacks;
     private static ArrayList<Event> events;
     private Player player;
-    private ArrayList<AI> AIlist;
     private Map map;
+    
+    private static Vector2f path;
     
     private GameManager manager;
     
@@ -37,10 +35,10 @@ public class GameState {
     
     public GameState(){
         objects = new ArrayList();
-        AIlist = new ArrayList();
         actors = new ArrayList();
         attacks = new ArrayList();
         events = new ArrayList();
+        path = new Vector2f(0,0);
         map = null;
         
         newGame();
@@ -65,10 +63,10 @@ public class GameState {
         objects.remove(object);
     }
     
-    public static void addActor(Actor actor){
+    public static void addActor(Actors actor){
         actors.add(actor);
     }
-    public static void delActor(Actor actor){
+    public static void delActor(Actors actor){
         actors.remove(actor);
     }
     
@@ -86,12 +84,17 @@ public class GameState {
         events.remove(event);
     }
     
+    public static void setPath(Vector2f paths){
+        path = paths;
+    }
+    
     public void update(){
         
         manager.manage();
         
-        ArrayList<Actor> list = new ArrayList(actors);
-        for(Actor actor : list)
+        ArrayList<Actors> list = new ArrayList(actors);
+        
+        for(Actors actor : list)
         {
             actor.update();
             actor.move();
@@ -101,7 +104,7 @@ public class GameState {
             actor.attack();
             */
             
-            Actor act = actor;
+            Actors act = actor;
             //argumentit: checkCircleCollisionWithMap(pallon keskipiste, pallon säde, kartta)
             CollisionDetectionResult cdr = CollisionDetection.checkCircleCollisionWithMap(act.getPosition(), 18, map);
             
@@ -111,16 +114,28 @@ public class GameState {
                 Vector2f d = act.getPosition();
                 act.setPosition(new Vector2f(d.x+cdr.fix.x,d.y+cdr.fix.y));
             }
-
+            
+            if(actor != player)
+            {
+                if(Pathfind.pathfindInMap(player.getPosition(), actor.getPosition(), map)){
+                    float rot = getRotFromVectors(new Vector2f(path), new Vector2f(actor.getPosition()));
+                    actor.setRotation(rot);
+                    actor.addVelocity(2f, actor.getRotation());
+                }
+                
+                cdr = CollisionDetection.checkCircleCollision(new Vector2f(actor.getPosition()), actor.getWeapon().getAttackrange()/5, player.getPosition(), 1f);
+                
+                if(cdr.found){
+                    actor.attack();
+                }
+            }
         }
+        
         
         ArrayList<Attack> list2 = new ArrayList(attacks);
         for(Attack attack : list2){
-            Vector2f pos1, pos2; // ampumalinja
             attack.update();
-            pos1 = attack.getPos();
             attack.move();
-            pos2 = attack.getPos();
             
             //argumentit: checkCircleCollisionWithMap(pallon keskipiste, pallon säde, kartta)
             CollisionDetectionResult cdr = CollisionDetection.checkCircleCollisionWithMap(attack.getPos(), 2, map);
@@ -131,8 +146,8 @@ public class GameState {
                 cdr.found = false;
             }
             
-            for(Actor actor : list){
-                Actor act = actor;
+            for(Actors actor : list){
+                Actors act = actor;
                 
                 //keskustan sijainti, ympärysmitta r, viivan sijainti1, viivan sijainti2
                 cdr = CollisionDetection.checkCircleCollision(new Vector2f(act.getPosition()), act.getSize().length()/2, attack.getPos(), 16f);
@@ -153,9 +168,31 @@ public class GameState {
         
     }
 
+    /**
+     * Returns the angle in degrees where vector is pointing
+     * @param vector
+     * @return (float)rotation
+     */
+    private float getRotFromVectors(Vector2f vec1, Vector2f vec2){
+        float rota, length, x, y;
+        
+        rota = 270;//fix to angle
+        // 0 ylös
+        // 90  ja -270 vasen
+        // 180 ja -180 alas
+        // 270 ja -90 oikea
+        
+        rota -= Math.toDegrees(Math.atan2(vec1.y - vec2.y,vec1.x - vec2.x));
+        return rota;
+        
+    }
+    
+    /**
+     *
+     */
     public void newGame() {
         
-        for (Actor a : actors)
+        for (Actors a : actors)
         {
             a.kill();
         }
@@ -166,10 +203,10 @@ public class GameState {
         }
         
         objects.clear();
-        AIlist.clear();
         actors.clear();
         attacks.clear();
         events.clear();
+        path = null;
         player = null;
         
         if (map != null)
@@ -177,9 +214,7 @@ public class GameState {
         map = new Map(20,12);
         Graphics.registerRenderable(map, Graphics.BaseLayer);
         
-        
         manager = new GameManager(this,map);
-        
     }
     
 }
