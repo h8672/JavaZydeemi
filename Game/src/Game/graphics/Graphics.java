@@ -178,7 +178,7 @@ public class Graphics
     }
 
     public static void setShockWavesEnabled(boolean enableShockWaves) {
-        Graphics.enableShockWaves = enableShockWaves;
+        Graphics.enableShockWaves = enableShockWaves && Graphics.allowShaders;
     }
 
     /** Lataa kuvan tiedostosta
@@ -505,10 +505,12 @@ public class Graphics
         }
         else
         {
-            
-            System.out.println("Failed to compile shader "+filename+".");
+            String r = GL20.glGetShaderInfoLog(shader, 512);
+            System.out.println("Failed to compile shader "+filename+":");
+            System.out.println(r);
             throw new Exception();
         }
+
         return shader;
 
     }

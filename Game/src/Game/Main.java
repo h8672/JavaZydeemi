@@ -199,11 +199,13 @@ public class Main {
         try {
             GraphicsSettings settings = Graphics.loadSettings();
 
-            Display.setDisplayMode
-        (new DisplayMode(settings.windowWidth,settings.windowHeight));
+            Display.setDisplayMode(new DisplayMode(settings.windowWidth,settings.windowHeight));
             
             Display.create();
             Display.setVSyncEnabled(true);
+            
+            settings.FBOEnabled = true;
+            settings.shadersEnabled = true;
             
             Graphics.init(settings);
             
